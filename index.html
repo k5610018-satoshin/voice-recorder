@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="振り返り録音">
+<meta name="theme-color" content="#e74c3c">
+<title>振り返り録音</title>
+
+<!-- PWA Manifest (inline via data URI) -->
+<link rel="manifest" href="data:application/json;charset=utf-8,%7B%22name%22%3A%22%E6%8C%AF%E3%82%8A%E8%BF%94%E3%82%8A%E9%8C%B2%E9%9F%B3%22%2C%22short_name%22%3A%22%E9%8C%B2%E9%9F%B3%22%2C%22description%22%3A%22%E6%8E%88%E6%A5%AD%E6%8C%AF%E3%82%8A%E8%BF%94%E3%82%8A%E9%9F%B3%E5%A3%B0%E3%82%92Google%20Drive%E3%81%AB%E8%87%AA%E5%8B%95%E4%BF%9D%E5%AD%98%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23f5f7fa%22%2C%22theme_color%22%3A%22%23e74c3c%22%2C%22orientation%22%3A%22portrait%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%2520xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%2520viewBox%3D'0%25200%2520192%2520192'%253E%253Crect%2520width%3D'192'%2520height%3D'192'%2520rx%3D'40'%2520fill%3D'%2523e74c3c'%2F%253E%253Ctext%2520x%3D'96'%2520y%3D'140'%2520font-size%3D'120'%2520text-anchor%3D'middle'%253E%25F0%259F%258E%2599%253C%2Ftext%253E%253C%2Fsvg%253E%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D">
+
+<!-- Apple Touch Icon (SVG fallback via data URI) -->
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='36' fill='%23e74c3c'/%3E%3Ctext x='90' y='130' font-size='110' text-anchor='middle'%3E%F0%9F%8E%99%3C/text%3E%3C/svg%3E">
+
+<style>
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+  background: #f5f7fa;
+  color: #2c3e50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+  padding: env(safe-area-inset-top) 16px env(safe-area-inset-bottom) 16px;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.header {
+  text-align: center;
+  padding: 20px 0 8px;
+  flex-shrink: 0;
+}
+
+.header h1 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #2c3e50;
+  letter-spacing: 1px;
+}
+
+.header .date {
+  font-size: 14px;
+  color: #7f8c8d;
+  margin-top: 4px;
+}
+
+.timer-area {
+  flex-shrink: 0;
+  padding: 24px 0 16px;
+}
+
+.timer {
+  font-size: 64px;
+  font-weight: 200;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 2px;
+  color: #2c3e50;
+  text-align: center;
+  transition: color 0.3s;
+}
+
+.timer.recording {
+  color: #e74c3c;
+}
+
+.timer.paused {
+  color: #f39c12;
+}
+
+.waveform {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  height: 40px;
+  margin-top: 8px;
+}
+
+.waveform .bar {
+  width: 4px;
+  height: 8px;
+  background: #bdc3c7;
+  border-radius: 2px;
+  transition: height 0.1s ease, background 0.3s;
+}
+
+.waveform.active .bar {
+  background: #e74c3c;
+  animation: wave 0.5s ease-in-out infinite alternate;
+}
+
+.waveform.paused-anim .bar {
+  background: #f39c12;
+  height: 8px !important;
+  animation: none;
+}
+
+@keyframes wave {
+  from { height: 4px; }
+  to { height: 36px; }
+}
+
+.waveform .bar:nth-child(1) { animation-delay: 0s; }
+.waveform .bar:nth-child(2) { animation-delay: 0.1s; }
+.waveform .bar:nth-child(3) { animation-delay: 0.2s; }
+.waveform .bar:nth-child(4) { animation-delay: 0.3s; }
+.waveform .bar:nth-child(5) { animation-delay: 0.05s; }
+.waveform .bar:nth-child(6) { animation-delay: 0.15s; }
+.waveform .bar:nth-child(7) { animation-delay: 0.25s; }
+.waveform .bar:nth-child(8) { animation-delay: 0.08s; }
+.waveform .bar:nth-child(9) { animation-delay: 0.18s; }
+
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 16px 0;
+  flex-shrink: 0;
+}
+
+.btn {
+  border: none;
+  cursor: pointer;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s, box-shadow 0.15s, opacity 0.3s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn:active {
+  transform: scale(0.92);
+}
+
+.btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+  transform: none;
+}
+
+.btn-record {
+  width: 100px;
+  height: 100px;
+  background: #e74c3c;
+  box-shadow: 0 4px 20px rgba(231, 76, 60, 0.4);
+}
+
+.btn-record .icon {
+  width: 36px;
+  height: 36px;
+  background: white;
+  border-radius: 50%;
+  transition: border-radius 0.2s, width 0.2s, height 0.2s;
+}
+
+.btn-record.is-recording .icon {
+  border-radius: 4px;
+  width: 28px;
+  height: 28px;
+}
+
+.btn-record.pulse {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 4px 20px rgba(231, 76, 60, 0.4); }
+  50% { box-shadow: 0 4px 40px rgba(231, 76, 60, 0.7); }
+}
+
+.btn-pause {
+  width: 64px;
+  height: 64px;
+  background: #f39c12;
+  box-shadow: 0 3px 12px rgba(243, 156, 18, 0.3);
+}
+
+.btn-pause.is-paused {
+  background: #27ae60;
+  box-shadow: 0 3px 12px rgba(39, 174, 96, 0.3);
+}
+
+.btn-pause.blink {
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.btn-pause svg {
+  width: 28px;
+  height: 28px;
+  fill: white;
+}
+
+.btn-stop {
+  width: 64px;
+  height: 64px;
+  background: #95a5a6;
+  box-shadow: 0 3px 12px rgba(149, 165, 166, 0.3);
+}
+
+.btn-stop svg {
+  width: 24px;
+  height: 24px;
+  fill: white;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.status-area {
+  flex-shrink: 0;
+  text-align: center;
+  padding: 12px 0;
+  min-height: 60px;
+}
+
+.status {
+  font-size: 16px;
+  font-weight: 500;
+  padding: 8px 20px;
+  border-radius: 20px;
+  display: inline-block;
+  transition: all 0.3s;
+}
+
+.status.idle { background: #ecf0f1; color: #7f8c8d; }
+.status.recording { background: #fdecea; color: #e74c3c; }
+.status.paused { background: #fef9e7; color: #f39c12; }
+.status.uploading { background: #eaf2f8; color: #2980b9; }
+.status.done { background: #eafaf1; color: #27ae60; }
+.status.error { background: #fdecea; color: #c0392b; }
+
+.upload-progress {
+  margin-top: 8px;
+  width: 200px;
+  height: 4px;
+  background: #ecf0f1;
+  border-radius: 2px;
+  overflow: hidden;
+  display: inline-block;
+}
+
+.upload-progress .bar {
+  height: 100%;
+  background: #3498db;
+  border-radius: 2px;
+  transition: width 0.3s;
+  width: 0%;
+}
+
+.history-area {
+  flex: 1;
+  width: 100%;
+  max-width: 400px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 8px 0 20px;
+}
+
+.history-title {
+  font-size: 13px;
+  color: #95a5a6;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  padding-left: 4px;
+}
+
+.history-list {
+  list-style: none;
+}
+
+.history-item {
+  background: white;
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.history-item .icon-col {
+  width: 36px;
+  height: 36px;
+  background: #eafaf1;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.history-item .info {
+  flex: 1;
+  min-width: 0;
+}
+
+.history-item .filename {
+  font-size: 13px;
+  font-weight: 600;
+  color: #2c3e50;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.history-item .meta {
+  font-size: 11px;
+  color: #95a5a6;
+  margin-top: 2px;
+}
+
+.empty-history {
+  text-align: center;
+  color: #bdc3c7;
+  font-size: 13px;
+  padding: 20px;
+}
+
+/* Spinner for upload */
+.spinner {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #3498db;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Settings overlay */
+.settings-btn {
+  position: fixed;
+  top: env(safe-area-inset-top, 12px);
+  right: 12px;
+  margin-top: 12px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: rgba(0,0,0,0.05);
+  border-radius: 50%;
+  font-size: 18px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  z-index: 10;
+}
+
+.settings-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.settings-panel {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  width: 100%;
+  max-width: 360px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.15);
+}
+
+.settings-panel h2 {
+  font-size: 18px;
+  margin-bottom: 16px;
+}
+
+.settings-panel label {
+  display: block;
+  font-size: 13px;
+  color: #7f8c8d;
+  margin-bottom: 4px;
+}
+
+.settings-panel input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  margin-bottom: 16px;
+  -webkit-appearance: none;
+}
+
+.settings-panel .btn-row {
+  display: flex;
+  gap: 8px;
+}
+
+.settings-panel button {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.settings-panel .btn-save {
+  background: #3498db;
+  color: white;
+}
+
+.settings-panel .btn-cancel {
+  background: #ecf0f1;
+  color: #7f8c8d;
+}
+</style>
+</head>
+<body>
+
+<button class="settings-btn" onclick="openSettings()" aria-label="設定">&#9881;</button>
+
+<div class="header">
+  <h1>振り返り録音</h1>
+  <div class="date" id="dateDisplay"></div>
+</div>
+
+<div class="timer-area">
+  <div class="timer" id="timer">00:00</div>
+  <div class="waveform" id="waveform">
+    <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+    <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+    <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+  </div>
+</div>
+
+<div class="controls">
+  <button class="btn btn-pause hidden" id="btnPause" onclick="togglePause()" aria-label="一時停止">
+    <svg id="pauseIcon" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+  </button>
+
+  <button class="btn btn-record" id="btnRecord" onclick="toggleRecord()" aria-label="録音開始">
+    <div class="icon"></div>
+  </button>
+
+  <button class="btn btn-stop hidden" id="btnStop" onclick="stopRecording()" aria-label="停止">
+    <svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+  </button>
+</div>
+
+<div class="status-area">
+  <div class="status idle" id="status">待機中</div>
+  <div class="upload-progress hidden" id="uploadProgress"><div class="bar" id="uploadBar"></div></div>
+</div>
+
+<div class="history-area">
+  <div class="history-title">録音履歴</div>
+  <ul class="history-list" id="historyList">
+    <li class="empty-history" id="emptyHistory">まだ録音はありません</li>
+  </ul>
+</div>
+
+<!-- Settings Overlay -->
+<div class="settings-overlay hidden" id="settingsOverlay" onclick="closeSettingsOnBackdrop(event)">
+  <div class="settings-panel">
+    <h2>設定</h2>
+    <label for="gasUrlInput">GAS WebアプリURL</label>
+    <input type="url" id="gasUrlInput" placeholder="https://script.google.com/macros/s/...">
+    <div class="btn-row">
+      <button class="btn-cancel" onclick="closeSettings()">キャンセル</button>
+      <button class="btn-save" onclick="saveSettings()">保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// 設定
+// ============================================================
+
+// GAS WebアプリURL（デプロイ後にここを書き換えるか、設定画面から入力）
+const DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycbz6NFcJuQAWX6zXGVlGol3dbs7uq0ctuVgOIsEzUItbQZL-IQwAZLejJEfgKaEv9wIM/exec";
+
+function getGasUrl() {
+  return localStorage.getItem("gas_webapp_url") || DEFAULT_GAS_URL;
+}
+
+// チャンクサイズ（Base64文字数単位）: GASのPOST上限が約50MBなので余裕を持って30MBに設定
+// 通常の録音（数分）では一括送信で問題ない
+const CHUNK_SIZE = 30 * 1024 * 1024; // ~30MB in base64
+
+// ============================================================
+// 状態管理
+// ============================================================
+
+let mediaRecorder = null;
+let audioChunks = [];      // MediaRecorderから得られるBlobチャンク
+let recordingSegments = []; // pause/resume非対応時に使う: 各セグメントのBlob配列
+let stream = null;
+let timerInterval = null;
+let startTime = null;
+let pausedElapsed = 0;     // 一時停止前の累計時間(ms)
+let state = "idle";        // idle | recording | paused | uploading | done
+let supportsPauseResume = false;
+let isPausingNotStopping = false; // pause非対応時にonstopがhandleRecordingCompleteを呼ぶのを防ぐフラグ
+let finalDurationMs = 0; // 停止時に確定する録音時間(ms)
+
+// ============================================================
+// 初期化
+// ============================================================
+
+document.addEventListener("DOMContentLoaded", () => {
+  updateDateDisplay();
+  loadHistory();
+  checkMediaRecorderSupport();
+});
+
+function updateDateDisplay() {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, "0");
+  const d = String(now.getDate()).padStart(2, "0");
+  const days = ["日", "月", "火", "水", "木", "金", "土"];
+  document.getElementById("dateDisplay").textContent = `${y}年${m}月${d}日（${days[now.getDay()]}）`;
+}
+
+function checkMediaRecorderSupport() {
+  if (typeof MediaRecorder === "undefined") {
+    setStatus("error", "このブラウザは録音に対応していません");
+    document.getElementById("btnRecord").disabled = true;
+    return;
+  }
+  // pause/resumeサポート確認
+  supportsPauseResume = typeof MediaRecorder.prototype.pause === "function"
+    && typeof MediaRecorder.prototype.resume === "function";
+}
+
+// ============================================================
+// 録音フォーマット選択（iOS Safari互換性重視）
+// ============================================================
+
+function getSupportedMimeType() {
+  // iOS SafariではMediaRecorder.isTypeSupported()が
+  // 正しく機能しない場合があるため、順番に試す
+  const candidates = [
+    { mimeType: "audio/mp4",  ext: "m4a" },
+    { mimeType: "audio/aac",  ext: "aac" },
+    { mimeType: "audio/webm;codecs=opus", ext: "webm" },
+    { mimeType: "audio/webm", ext: "webm" },
+    { mimeType: "audio/ogg;codecs=opus",  ext: "ogg" },
+  ];
+
+  for (const c of candidates) {
+    try {
+      if (MediaRecorder.isTypeSupported(c.mimeType)) {
+        return c;
+      }
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  // フォールバック: デフォルトに任せる（iOS Safariはaudio/mp4になることが多い）
+  return { mimeType: "", ext: "m4a" };
+}
+
+// ============================================================
+// 録音制御
+// ============================================================
+
+async function toggleRecord() {
+  if (state === "idle" || state === "done") {
+    await startRecording();
+  }
+}
+
+async function startRecording() {
+  try {
+    // マイクのパーミッション取得
+    stream = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        echoCancellation: false,
+        noiseSuppression: false,
+        autoGainControl: true,
+        sampleRate: 44100,
+      }
+    });
+  } catch (err) {
+    if (err.name === "NotAllowedError" || err.name === "PermissionDeniedError") {
+      setStatus("error", "マイクの使用が許可されていません");
+    } else {
+      setStatus("error", "マイクの取得に失敗: " + err.message);
+    }
+    return;
+  }
+
+  audioChunks = [];
+  recordingSegments = [];
+  const fmt = getSupportedMimeType();
+
+  const options = {};
+  if (fmt.mimeType) {
+    options.mimeType = fmt.mimeType;
+  }
+
+  try {
+    mediaRecorder = new MediaRecorder(stream, options);
+  } catch (e) {
+    // mimeType指定が失敗した場合はデフォルトで再試行
+    mediaRecorder = new MediaRecorder(stream);
+  }
+
+  // 実際に使用されるmimeTypeを保存
+  mediaRecorder._fmt = fmt;
+  mediaRecorder._actualMimeType = mediaRecorder.mimeType || fmt.mimeType || "audio/mp4";
+
+  mediaRecorder.ondataavailable = (e) => {
+    if (e.data && e.data.size > 0) {
+      audioChunks.push(e.data);
+    }
+  };
+
+  mediaRecorder.onstop = () => {
+    // pause非対応フォールバックで一時停止のためにstopした場合は何もしない
+    if (isPausingNotStopping) {
+      isPausingNotStopping = false;
+      return;
+    }
+    // pause/resume非対応で複数セグメントがある場合は結合
+    if (!supportsPauseResume && recordingSegments.length > 0) {
+      // 最後のセグメント（stop時点のaudioChunks）も追加
+      if (audioChunks.length > 0) {
+        recordingSegments.push(new Blob(audioChunks, { type: mediaRecorder._actualMimeType }));
+      }
+      const combined = new Blob(recordingSegments, { type: mediaRecorder._actualMimeType });
+      handleRecordingComplete(combined);
+    } else {
+      const blob = new Blob(audioChunks, { type: mediaRecorder._actualMimeType });
+      handleRecordingComplete(blob);
+    }
+  };
+
+  // timeslice: 1秒ごとにデータ取得（一時停止対応のため細かく）
+  mediaRecorder.start(1000);
+
+  startTime = Date.now();
+  pausedElapsed = 0;
+  startTimer();
+  setState("recording");
+}
+
+function togglePause() {
+  if (state === "recording") {
+    pauseRecording();
+  } else if (state === "paused") {
+    resumeRecording();
+  }
+}
+
+function pauseRecording() {
+  if (!mediaRecorder || mediaRecorder.state === "inactive") return;
+
+  if (supportsPauseResume) {
+    mediaRecorder.pause();
+  } else {
+    // pause非対応: 現在のRecorderを停止して、チャンクをセグメントとして保存
+    isPausingNotStopping = true; // onstopでhandleRecordingCompleteを呼ばせない
+    mediaRecorder.stop();
+    recordingSegments.push(new Blob(audioChunks, { type: mediaRecorder._actualMimeType }));
+    audioChunks = [];
+  }
+
+  pausedElapsed += (Date.now() - startTime);
+  stopTimer();
+  setState("paused");
+}
+
+function resumeRecording() {
+  if (supportsPauseResume && mediaRecorder && mediaRecorder.state === "paused") {
+    mediaRecorder.resume();
+  } else if (!supportsPauseResume) {
+    // 新しいMediaRecorderを作成して録音再開
+    audioChunks = [];
+    const options = {};
+    const fmt = mediaRecorder._fmt;
+    if (fmt && fmt.mimeType) options.mimeType = fmt.mimeType;
+
+    try {
+      const newRecorder = new MediaRecorder(stream, options);
+      newRecorder._fmt = fmt;
+      newRecorder._actualMimeType = newRecorder.mimeType || (fmt && fmt.mimeType) || "audio/mp4";
+
+      newRecorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) {
+          audioChunks.push(e.data);
+        }
+      };
+
+      newRecorder.onstop = () => {
+        // pause非対応フォールバックで一時停止のためにstopした場合は何もしない
+        if (isPausingNotStopping) {
+          isPausingNotStopping = false;
+          return;
+        }
+        if (audioChunks.length > 0) {
+          recordingSegments.push(new Blob(audioChunks, { type: newRecorder._actualMimeType }));
+        }
+        const combined = new Blob(recordingSegments, { type: newRecorder._actualMimeType });
+        handleRecordingComplete(combined);
+      };
+
+      mediaRecorder = newRecorder;
+      mediaRecorder.start(1000);
+    } catch (e) {
+      setStatus("error", "録音の再開に失敗しました");
+      return;
+    }
+  }
+
+  startTime = Date.now();
+  startTimer();
+  setState("recording");
+}
+
+function stopRecording() {
+  if (!mediaRecorder) return;
+
+  // 最終的な録音時間を確定
+  if (state === "paused") {
+    // 一時停止中: pausedElapsedに全時間が入っている
+    finalDurationMs = pausedElapsed;
+  } else {
+    // 録音中: 現在のセグメント分を加算
+    finalDurationMs = pausedElapsed + (Date.now() - startTime);
+  }
+
+  if (state === "paused" && !supportsPauseResume) {
+    // すでにstopしてある場合（pause非対応フォールバック）、手動で完了処理
+    const combined = new Blob(recordingSegments, { type: mediaRecorder._actualMimeType });
+    handleRecordingComplete(combined);
+  } else if (mediaRecorder.state !== "inactive") {
+    mediaRecorder.stop();
+  }
+
+  stopTimer();
+  releaseStream();
+}
+
+function releaseStream() {
+  if (stream) {
+    stream.getTracks().forEach(t => t.stop());
+    stream = null;
+  }
+}
+
+// ============================================================
+// 録音完了 → アップロード
+// ============================================================
+
+async function handleRecordingComplete(blob) {
+  if (blob.size === 0) {
+    setStatus("error", "録音データが空です");
+    setState("idle");
+    return;
+  }
+
+  setState("uploading");
+
+  const ext = mediaRecorder._fmt ? mediaRecorder._fmt.ext : "m4a";
+  const mimeType = mediaRecorder._actualMimeType || "audio/mp4";
+  const filename = generateFilename(ext);
+
+  try {
+    const base64 = await blobToBase64(blob);
+    await uploadToGAS(filename, base64, mimeType);
+
+    // 履歴に追加
+    const totalSeconds = Math.floor(finalDurationMs / 1000);
+    addHistory(filename, blob.size, totalSeconds);
+
+    setState("done");
+  } catch (err) {
+    setStatus("error", "アップロード失敗: " + err.message);
+    // ダウンロードリンクを提供
+    offerDownload(blob, filename);
+    setState("idle");
+  }
+}
+
+function generateFilename(ext) {
+  const now = new Date();
+  const y = now.getFullYear();
+  const mo = String(now.getMonth() + 1).padStart(2, "0");
+  const d = String(now.getDate()).padStart(2, "0");
+  const h = String(now.getHours()).padStart(2, "0");
+  const mi = String(now.getMinutes()).padStart(2, "0");
+  return `${y}-${mo}-${d}_${h}${mi}_振り返り.${ext}`;
+}
+
+function blobToBase64(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      // data:audio/mp4;base64,XXXX → XXXXの部分だけ取得
+      const base64 = reader.result.split(",")[1];
+      resolve(base64);
+    };
+    reader.onerror = () => reject(new Error("Base64変換に失敗"));
+    reader.readAsDataURL(blob);
+  });
+}
+
+// ============================================================
+// GASへのアップロード
+// ============================================================
+
+async function uploadToGAS(filename, base64data, mimeType) {
+  const gasUrl = getGasUrl();
+
+  if (!gasUrl || gasUrl === "PASTE_YOUR_GAS_WEBAPP_URL_HERE") {
+    throw new Error("GAS URLが設定されていません。設定画面からURLを入力してください。");
+  }
+
+  showProgress(0);
+
+  // base64のサイズ確認
+  const dataLength = base64data.length;
+
+  if (dataLength <= CHUNK_SIZE) {
+    // 一括送信
+    showProgress(30);
+
+    // GAS WebアプリはCORSプリフライトに対応しないため、
+    // Content-Typeをtext/plainにしてsimple requestとして送信
+    const response = await fetch(gasUrl, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({
+        filename: filename,
+        data: base64data,
+        mimeType: mimeType,
+      }),
+    });
+
+    showProgress(90);
+
+    // GASのWebアプリはリダイレクトを返すことがあるため
+    // redirected後のレスポンスを取得
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    let result;
+    const text = await response.text();
+    try {
+      result = JSON.parse(text);
+    } catch (e) {
+      throw new Error("レスポンスの解析に失敗: " + text.substring(0, 100));
+    }
+
+    showProgress(100);
+
+    if (!result.success) {
+      throw new Error(result.error || "不明なエラー");
+    }
+
+    return result;
+
+  } else {
+    // チャンク送信
+    const sessionId = Date.now().toString(36) + Math.random().toString(36).substring(2);
+    const totalChunks = Math.ceil(dataLength / CHUNK_SIZE);
+
+    for (let i = 0; i < totalChunks; i++) {
+      const chunk = base64data.substring(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE);
+      const progress = Math.round(((i + 1) / totalChunks) * 90);
+      showProgress(progress);
+
+      const response = await fetch(gasUrl, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({
+          filename: filename,
+          data: chunk,
+          mimeType: mimeType,
+          chunkIndex: i,
+          totalChunks: totalChunks,
+          sessionId: sessionId,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`チャンク${i + 1}送信失敗: HTTP ${response.status}`);
+      }
+
+      const chunkText = await response.text();
+      const result = JSON.parse(chunkText);
+      if (!result.success) {
+        throw new Error(result.error || `チャンク${i + 1}でエラー`);
+      }
+    }
+
+    showProgress(100);
+    return { success: true };
+  }
+}
+
+function showProgress(percent) {
+  const el = document.getElementById("uploadProgress");
+  const bar = document.getElementById("uploadBar");
+  el.classList.remove("hidden");
+  bar.style.width = percent + "%";
+}
+
+function hideProgress() {
+  document.getElementById("uploadProgress").classList.add("hidden");
+  document.getElementById("uploadBar").style.width = "0%";
+}
+
+function offerDownload(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.textContent = "ここをタップして録音をダウンロード";
+  a.style.cssText = "display:block;text-align:center;color:#3498db;font-weight:600;padding:12px;";
+  document.querySelector(".status-area").appendChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
+}
+
+// ============================================================
+// タイマー
+// ============================================================
+
+function startTimer() {
+  updateTimerDisplay();
+  timerInterval = setInterval(updateTimerDisplay, 200);
+}
+
+function stopTimer() {
+  clearInterval(timerInterval);
+  timerInterval = null;
+}
+
+function updateTimerDisplay() {
+  const elapsed = pausedElapsed + (Date.now() - startTime);
+  const totalSec = Math.floor(elapsed / 1000);
+  const min = String(Math.floor(totalSec / 60)).padStart(2, "0");
+  const sec = String(totalSec % 60).padStart(2, "0");
+  document.getElementById("timer").textContent = `${min}:${sec}`;
+}
+
+// ============================================================
+// UI状態管理
+// ============================================================
+
+function setState(newState) {
+  state = newState;
+  const btnRecord = document.getElementById("btnRecord");
+  const btnPause = document.getElementById("btnPause");
+  const btnStop = document.getElementById("btnStop");
+  const timer = document.getElementById("timer");
+  const waveform = document.getElementById("waveform");
+  const pauseIcon = document.getElementById("pauseIcon");
+
+  // リセット
+  btnRecord.classList.remove("is-recording", "pulse");
+  btnPause.classList.remove("is-paused", "blink", "hidden");
+  btnStop.classList.remove("hidden");
+  timer.classList.remove("recording", "paused");
+  waveform.classList.remove("active", "paused-anim");
+  btnRecord.disabled = false;
+  btnPause.disabled = false;
+  btnStop.disabled = false;
+
+  switch (newState) {
+    case "idle":
+      btnPause.classList.add("hidden");
+      btnStop.classList.add("hidden");
+      timer.textContent = "00:00";
+      hideProgress();
+      setStatus("idle", "待機中");
+      break;
+
+    case "recording":
+      btnRecord.classList.add("is-recording", "pulse");
+      btnRecord.disabled = true;
+      timer.classList.add("recording");
+      waveform.classList.add("active");
+      // 一時停止ボタン: 一時停止アイコン表示
+      btnPause.classList.remove("is-paused", "blink");
+      pauseIcon.innerHTML = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
+      setStatus("recording", "録音中...");
+      break;
+
+    case "paused":
+      btnRecord.classList.add("is-recording");
+      btnRecord.disabled = true;
+      timer.classList.add("paused");
+      waveform.classList.add("paused-anim");
+      // 一時停止ボタン → 再開ボタンに変更
+      btnPause.classList.add("is-paused", "blink");
+      pauseIcon.innerHTML = '<polygon points="8,4 20,12 8,20"/>';
+      setStatus("paused", "一時停止中");
+      break;
+
+    case "uploading":
+      btnPause.classList.add("hidden");
+      btnStop.classList.add("hidden");
+      btnRecord.disabled = true;
+      btnRecord.classList.remove("pulse");
+      setStatus("uploading", '<span class="spinner"></span>アップロード中...');
+      break;
+
+    case "done":
+      btnPause.classList.add("hidden");
+      btnStop.classList.add("hidden");
+      btnRecord.disabled = false;
+      btnRecord.classList.remove("is-recording");
+      hideProgress();
+      setStatus("done", "\u2705 保存しました");
+      // 3秒後に待機に戻る
+      setTimeout(() => {
+        if (state === "done") setState("idle");
+      }, 3000);
+      break;
+  }
+}
+
+function setStatus(type, html) {
+  const el = document.getElementById("status");
+  el.className = "status " + type;
+  if (html) el.innerHTML = html;
+}
+
+// ============================================================
+// 録音履歴（LocalStorage）
+// ============================================================
+
+const HISTORY_KEY = "voice_recorder_history";
+const MAX_HISTORY = 5;
+
+function loadHistory() {
+  const list = getHistoryList();
+  renderHistory(list);
+}
+
+function getHistoryList() {
+  try {
+    return JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
+  } catch {
+    return [];
+  }
+}
+
+function addHistory(filename, sizeBytes, durationSec) {
+  const list = getHistoryList();
+  list.unshift({
+    filename: filename,
+    size: sizeBytes,
+    duration: durationSec,
+    timestamp: new Date().toISOString(),
+  });
+  // 最大5件に制限
+  while (list.length > MAX_HISTORY) list.pop();
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(list));
+  renderHistory(list);
+}
+
+function renderHistory(list) {
+  const container = document.getElementById("historyList");
+  const empty = document.getElementById("emptyHistory");
+
+  if (list.length === 0) {
+    container.innerHTML = '<li class="empty-history" id="emptyHistory">まだ録音はありません</li>';
+    return;
+  }
+
+  container.innerHTML = list.map(item => {
+    const sizeMB = (item.size / (1024 * 1024)).toFixed(1);
+    const min = Math.floor(item.duration / 60);
+    const sec = item.duration % 60;
+    const durStr = `${min}分${sec}秒`;
+    const dateStr = new Date(item.timestamp).toLocaleString("ja-JP", {
+      month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit"
+    });
+    return `
+      <li class="history-item">
+        <div class="icon-col">\u2705</div>
+        <div class="info">
+          <div class="filename">${escapeHtml(item.filename)}</div>
+          <div class="meta">${dateStr} / ${durStr} / ${sizeMB}MB</div>
+        </div>
+      </li>`;
+  }).join("");
+}
+
+function escapeHtml(str) {
+  const d = document.createElement("div");
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+// ============================================================
+// 設定画面
+// ============================================================
+
+function openSettings() {
+  document.getElementById("gasUrlInput").value = getGasUrl();
+  document.getElementById("settingsOverlay").classList.remove("hidden");
+}
+
+function closeSettings() {
+  document.getElementById("settingsOverlay").classList.add("hidden");
+}
+
+function closeSettingsOnBackdrop(e) {
+  if (e.target === document.getElementById("settingsOverlay")) {
+    closeSettings();
+  }
+}
+
+function saveSettings() {
+  const url = document.getElementById("gasUrlInput").value.trim();
+  if (url) {
+    localStorage.setItem("gas_webapp_url", url);
+  }
+  closeSettings();
+  setStatus("idle", "設定を保存しました");
+  setTimeout(() => setStatus("idle", "待機中"), 1500);
+}
+
+// ============================================================
+// Service Worker 登録
+// ============================================================
+
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js").catch(() => {
+    // Service Workerが読み込めなくても動作に影響なし
+  });
+}
+</script>
+</body>
+</html>
