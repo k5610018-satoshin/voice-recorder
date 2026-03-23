@@ -444,6 +444,44 @@ body {
   background: #ecf0f1;
   color: #7f8c8d;
 }
+
+/* 一時停止中アクションパネル */
+.pause-actions {
+  padding: 12px 20px;
+  background: #fff9e6;
+  border-radius: 16px;
+  margin: 0 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.pause-actions.hidden { display: none; }
+.pause-buttons {
+  display: flex; gap: 10px;
+}
+.pause-action-btn {
+  flex: 1; padding: 12px 8px; border: none; border-radius: 12px;
+  font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit;
+}
+.resume-btn { background: #27ae60; color: white; }
+.retake-btn { background: #e74c3c; color: white; }
+.stop-save-btn { background: #3498db; color: white; }
+.pause-label { font-size: 13px; font-weight: 600; color: #7f8c8d; margin-bottom: 6px; text-align: center; }
+.player-row {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 12px;
+}
+.play-btn {
+  width: 36px; height: 36px; border-radius: 50%; border: none;
+  background: #3498db; color: white; font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.seek-slider {
+  flex: 1; height: 6px; -webkit-appearance: none; appearance: none;
+  background: #ddd; border-radius: 3px; outline: none;
+}
+.seek-slider::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 18px; height: 18px;
+  background: #3498db; border-radius: 50%; cursor: pointer;
+}
+.play-time { font-size: 11px; color: #7f8c8d; white-space: nowrap; min-width: 70px; }
 </style>
 </head>
 <body>
@@ -476,6 +514,23 @@ body {
   <button class="btn btn-stop hidden" id="btnStop" onclick="stopRecording()" aria-label="停止">
     <svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
   </button>
+</div>
+
+<!-- 一時停止中アクションパネル -->
+<div class="pause-actions hidden" id="pauseActions">
+  <div class="pause-label">ここまでの録音を確認</div>
+  <canvas id="waveformCanvas" width="600" height="60" style="width:100%;height:60px;border-radius:8px;background:#fff;margin-bottom:6px;"></canvas>
+  <div class="player-row">
+    <button class="play-btn" id="playPauseBtn" onclick="togglePlayPreview()">▶</button>
+    <input type="range" class="seek-slider" id="seekSlider" min="0" max="100" value="0" oninput="seekPreview(this.value)">
+    <span class="play-time" id="playTime">0:00 / 0:00</span>
+  </div>
+  <audio id="pausePreviewAudio" style="display:none;"></audio>
+  <div class="pause-buttons">
+    <button class="pause-action-btn resume-btn" onclick="hidePauseActions();resumeRecording();">▶ 続きから録音</button>
+    <button class="pause-action-btn retake-btn" onclick="retakeFromPause()">🔄 撮り直し</button>
+    <button class="pause-action-btn stop-save-btn" onclick="stopRecording()">💾 保存する</button>
+  </div>
 </div>
 
 <div class="status-area">
@@ -687,14 +742,15 @@ function togglePause() {
   }
 }
 
+let pausePreviewUrl = null;
+
 function pauseRecording() {
   if (!mediaRecorder || mediaRecorder.state === "inactive") return;
 
   if (supportsPauseResume) {
     mediaRecorder.pause();
   } else {
-    // pause非対応: 現在のRecorderを停止して、チャンクをセグメントとして保存
-    isPausingNotStopping = true; // onstopでhandleRecordingCompleteを呼ばせない
+    isPausingNotStopping = true;
     mediaRecorder.stop();
     recordingSegments.push(new Blob(audioChunks, { type: mediaRecorder._actualMimeType }));
     audioChunks = [];
@@ -702,7 +758,166 @@ function pauseRecording() {
 
   pausedElapsed += (Date.now() - startTime);
   stopTimer();
+
+  // ここまでの録音をプレビュー用に生成
+  createPausePreview();
   setState("paused");
+}
+
+function createPausePreview() {
+  // 既存プレビューを解放
+  if (pausePreviewUrl) { URL.revokeObjectURL(pausePreviewUrl); pausePreviewUrl = null; }
+
+  const mimeType = mediaRecorder._actualMimeType || "audio/mp4";
+  let previewBlob;
+  if (supportsPauseResume) {
+    previewBlob = new Blob(audioChunks, { type: mimeType });
+  } else {
+    previewBlob = new Blob(recordingSegments, { type: mimeType });
+  }
+
+  if (previewBlob.size > 0) {
+    pausePreviewUrl = URL.createObjectURL(previewBlob);
+    const audio = document.getElementById("pausePreviewAudio");
+    if (audio) {
+      audio.src = pausePreviewUrl;
+      audio.onended = () => {
+        document.getElementById("playPauseBtn").textContent = "▶";
+        isPlayingPreview = false;
+      };
+      audio.onloadedmetadata = () => updatePlayTime();
+    }
+    // 波形描画
+    drawWaveform(previewBlob);
+  }
+}
+
+function showPauseActions() {
+  document.getElementById("pauseActions").classList.remove("hidden");
+}
+
+function hidePauseActions() {
+  document.getElementById("pauseActions").classList.add("hidden");
+  const audio = document.getElementById("pausePreviewAudio");
+  if (audio) { audio.pause(); audio.src = ""; }
+  if (pausePreviewUrl) { URL.revokeObjectURL(pausePreviewUrl); pausePreviewUrl = null; }
+}
+
+// ============================================================
+// 一時停止中カスタムプレーヤー
+// ============================================================
+
+let isPlayingPreview = false;
+let previewAnimFrame = null;
+
+function togglePlayPreview() {
+  const audio = document.getElementById("pausePreviewAudio");
+  const btn = document.getElementById("playPauseBtn");
+  if (!audio || !audio.src) return;
+  if (audio.paused) {
+    audio.play();
+    btn.textContent = "⏸";
+    isPlayingPreview = true;
+    updateSeekLoop();
+  } else {
+    audio.pause();
+    btn.textContent = "▶";
+    isPlayingPreview = false;
+  }
+}
+
+function seekPreview(val) {
+  const audio = document.getElementById("pausePreviewAudio");
+  if (!audio || !audio.duration) return;
+  audio.currentTime = (val / 100) * audio.duration;
+  updatePlayTime();
+}
+
+function updateSeekLoop() {
+  const audio = document.getElementById("pausePreviewAudio");
+  const slider = document.getElementById("seekSlider");
+  if (!audio || audio.paused) { isPlayingPreview = false; return; }
+  if (audio.duration) {
+    slider.value = (audio.currentTime / audio.duration) * 100;
+  }
+  updatePlayTime();
+  previewAnimFrame = requestAnimationFrame(updateSeekLoop);
+}
+
+function updatePlayTime() {
+  const audio = document.getElementById("pausePreviewAudio");
+  const el = document.getElementById("playTime");
+  if (!audio) return;
+  const cur = formatTime(audio.currentTime || 0);
+  const dur = formatTime(audio.duration || 0);
+  el.textContent = `${cur} / ${dur}`;
+}
+
+function formatTime(sec) {
+  if (!isFinite(sec)) return "0:00";
+  const m = Math.floor(sec / 60);
+  const s = Math.floor(sec % 60);
+  return `${m}:${String(s).padStart(2, "0")}`;
+}
+
+// 波形描画（AudioContext解析）
+async function drawWaveform(blob) {
+  const canvas = document.getElementById("waveformCanvas");
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  try {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const arrayBuf = await blob.arrayBuffer();
+    const audioBuf = await audioCtx.decodeAudioData(arrayBuf);
+    const data = audioBuf.getChannelData(0);
+    const w = canvas.width;
+    const h = canvas.height;
+    const step = Math.floor(data.length / w);
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = "#ecf0f1";
+    ctx.fillRect(0, 0, w, h);
+    ctx.strokeStyle = "#3498db";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (let i = 0; i < w; i++) {
+      let min = 1, max = -1;
+      for (let j = 0; j < step; j++) {
+        const val = data[i * step + j] || 0;
+        if (val < min) min = val;
+        if (val > max) max = val;
+      }
+      const yMin = ((1 + min) / 2) * h;
+      const yMax = ((1 + max) / 2) * h;
+      ctx.moveTo(i, yMin);
+      ctx.lineTo(i, yMax);
+    }
+    ctx.stroke();
+    audioCtx.close();
+  } catch (e) {
+    // 波形描画失敗時はグレーバーを表示
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#ecf0f1";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#bdc3c7";
+    ctx.textAlign = "center";
+    ctx.fillText("波形を表示できません", canvas.width / 2, canvas.height / 2 + 4);
+  }
+}
+
+function retakeFromPause() {
+  // 録音を全て破棄して最初からやり直し
+  hidePauseActions();
+  if (mediaRecorder && mediaRecorder.state !== "inactive") {
+    isPausingNotStopping = true;
+    mediaRecorder.stop();
+  }
+  releaseStream();
+  audioChunks = [];
+  recordingSegments = [];
+  pausedElapsed = 0;
+  finalDurationMs = 0;
+  setState("idle");
+  setStatus("info", "録音を破棄しました。もう一度録音できます。");
 }
 
 function resumeRecording() {
@@ -1002,6 +1217,7 @@ function setState(newState) {
   btnRecord.disabled = false;
   btnPause.disabled = false;
   btnStop.disabled = false;
+  if (newState !== "paused") hidePauseActions();
 
   switch (newState) {
     case "idle":
@@ -1028,10 +1244,9 @@ function setState(newState) {
       btnRecord.disabled = true;
       timer.classList.add("paused");
       waveform.classList.add("paused-anim");
-      // 一時停止ボタン → 再開ボタンに変更
-      btnPause.classList.add("is-paused", "blink");
-      pauseIcon.innerHTML = '<polygon points="8,4 20,12 8,20"/>';
-      setStatus("paused", "一時停止中");
+      btnPause.classList.add("hidden");
+      setStatus("paused", "一時停止中 — 録音を確認してください");
+      showPauseActions();
       break;
 
     case "uploading":
