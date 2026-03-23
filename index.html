@@ -9,11 +9,11 @@
 <meta name="theme-color" content="#e74c3c">
 <title>振り返り録音</title>
 
-<!-- PWA Manifest (inline via data URI) -->
-<link rel="manifest" href="data:application/json;charset=utf-8,%7B%22name%22%3A%22%E6%8C%AF%E3%82%8A%E8%BF%94%E3%82%8A%E9%8C%B2%E9%9F%B3%22%2C%22short_name%22%3A%22%E9%8C%B2%E9%9F%B3%22%2C%22description%22%3A%22%E6%8E%88%E6%A5%AD%E6%8C%AF%E3%82%8A%E8%BF%94%E3%82%8A%E9%9F%B3%E5%A3%B0%E3%82%92Google%20Drive%E3%81%AB%E8%87%AA%E5%8B%95%E4%BF%9D%E5%AD%98%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23f5f7fa%22%2C%22theme_color%22%3A%22%23e74c3c%22%2C%22orientation%22%3A%22portrait%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%2520xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%2520viewBox%3D'0%25200%2520192%2520192'%253E%253Crect%2520width%3D'192'%2520height%3D'192'%2520rx%3D'40'%2520fill%3D'%2523e74c3c'%2F%253E%253Ctext%2520x%3D'96'%2520y%3D'140'%2520font-size%3D'120'%2520text-anchor%3D'middle'%253E%25F0%259F%258E%2599%253C%2Ftext%253E%253C%2Fsvg%253E%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D">
+<!-- PWA Manifest (set dynamically with PNG icons) -->
+<link rel="manifest" id="manifestLink">
 
-<!-- Apple Touch Icon (SVG fallback via data URI) -->
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='36' fill='%23e74c3c'/%3E%3Ctext x='90' y='130' font-size='110' text-anchor='middle'%3E%F0%9F%8E%99%3C/text%3E%3C/svg%3E">
+<!-- Apple Touch Icon (set dynamically as PNG) -->
+<link rel="apple-touch-icon" id="appleTouchIcon">
 
 <style>
 *, *::before, *::after {
@@ -269,6 +269,28 @@ body {
 }
 
 .hidden { display: none !important; }
+
+/* Background pause notification banner */
+.bg-pause-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 200;
+  background: #f39c12;
+  color: #fff;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 16px;
+  padding-top: calc(10px + env(safe-area-inset-top));
+  transform: translateY(-100%);
+  transition: transform 0.3s ease;
+}
+
+.bg-pause-banner.show {
+  transform: translateY(0);
+}
 
 /* ---- Status ---- */
 .status-area {
@@ -527,6 +549,9 @@ body {
 </head>
 <body>
 
+<!-- ===== Background Pause Banner ===== -->
+<div class="bg-pause-banner" id="bgPauseBanner">バックグラウンド移行のため録音を一時停止しました</div>
+
 <!-- ===== Header ===== -->
 <div class="header">
   <h1>振り返り録音</h1>
@@ -668,6 +693,7 @@ document.addEventListener("DOMContentLoaded", () => {
   resizeCanvas();
   renderState();
   setupEventListeners();
+  generatePWAIcons();
 });
 
 window.addEventListener("resize", () => {
@@ -705,6 +731,9 @@ function setupEventListeners() {
   $canvas.addEventListener("pointermove", onWaveformPointerMove);
   $canvas.addEventListener("pointerup", onWaveformPointerUp);
   $canvas.addEventListener("pointercancel", onWaveformPointerUp);
+
+  // Visibilitychange: auto-pause when app goes to background (iOS protection)
+  document.addEventListener("visibilitychange", onVisibilityChange);
 }
 
 // ============================================================
@@ -1058,15 +1087,34 @@ async function doSave() {
   appState = "uploading";
   renderState();
 
-  const wavBlob = encodeWAV(pcmBuffer, SAMPLE_RATE);
-  const filename = generateFilename();
-  const totalSec = Math.floor(pcmBuffer.length / SAMPLE_RATE);
-
   try {
-    const base64 = await blobToBase64(wavBlob);
-    await uploadToGAS(filename, base64, "audio/wav");
+    // Try compressed encoding first (M4A/WebM), fall back to WAV
+    const fmt = getSupportedMimeType();
+    let audioBlob;
+    let uploadMimeType;
+    let fileExt;
 
-    addHistory(filename, wavBlob.size, totalSec);
+    if (fmt.mimeType) {
+      // Encode PCM to compressed format via MediaRecorder
+      setStatusBadge("uploading", '<span class="spinner"></span>音声を圧縮中...');
+      audioBlob = await encodePCMToCompressed(pcmBuffer, SAMPLE_RATE, fmt.mimeType);
+      uploadMimeType = fmt.mimeType.split(";")[0]; // "audio/mp4" or "audio/webm"
+      fileExt = fmt.ext;
+    } else {
+      // Fallback to WAV
+      audioBlob = encodeWAV(pcmBuffer, SAMPLE_RATE);
+      uploadMimeType = "audio/wav";
+      fileExt = "wav";
+    }
+
+    const filename = generateFilename(fileExt);
+    const totalSec = Math.floor(pcmBuffer.length / SAMPLE_RATE);
+
+    setStatusBadge("uploading", '<span class="spinner"></span>アップロード中...');
+    const base64 = await blobToBase64(audioBlob);
+    await uploadToGAS(filename, base64, uploadMimeType);
+
+    addHistory(filename, audioBlob.size, totalSec);
 
     hideProgress();
     appState = "done";
@@ -1083,7 +1131,9 @@ async function doSave() {
   } catch (err) {
     hideProgress();
     setStatusBadge("error", "アップロード失敗: " + escapeHtml(err.message));
-    offerDownload(wavBlob, filename);
+    // Fallback: offer WAV download
+    const wavBlob = encodeWAV(pcmBuffer, SAMPLE_RATE);
+    offerDownload(wavBlob, generateFilename("wav"));
     resetToIdle();
   }
 }
@@ -1576,6 +1626,77 @@ function encodeWAV(samples, sampleRate) {
 }
 
 // ============================================================
+// Compressed Encoder (PCM -> M4A/WebM via MediaRecorder)
+// ============================================================
+
+function encodePCMToCompressed(samples, sampleRate, mimeType) {
+  return new Promise((resolve, reject) => {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: sampleRate });
+      const audioBuf = ctx.createBuffer(1, samples.length, sampleRate);
+      audioBuf.getChannelData(0).set(samples);
+
+      const source = ctx.createBufferSource();
+      source.buffer = audioBuf;
+
+      const dest = ctx.createMediaStreamDestination();
+      source.connect(dest);
+
+      const chunks = [];
+      let recorder;
+      try {
+        recorder = new MediaRecorder(dest.stream, { mimeType: mimeType });
+      } catch (e) {
+        // If the mimeType fails, try without options
+        recorder = new MediaRecorder(dest.stream);
+      }
+
+      recorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) chunks.push(e.data);
+      };
+
+      recorder.onstop = () => {
+        ctx.close().catch(() => {});
+        if (chunks.length === 0) {
+          reject(new Error("圧縮エンコードに失敗: データなし"));
+          return;
+        }
+        const blob = new Blob(chunks, { type: recorder.mimeType || mimeType });
+        resolve(blob);
+      };
+
+      recorder.onerror = (e) => {
+        ctx.close().catch(() => {});
+        reject(new Error("圧縮エンコードエラー: " + (e.error?.message || "不明")));
+      };
+
+      recorder.start();
+      source.start(0);
+
+      // Stop recording when the source finishes playing
+      source.onended = () => {
+        // Small delay to ensure all data is captured
+        setTimeout(() => {
+          if (recorder.state !== "inactive") {
+            recorder.stop();
+          }
+        }, 100);
+      };
+
+      // Safety timeout: if source.onended doesn't fire
+      const maxDurationMs = (samples.length / sampleRate) * 1000 + 2000;
+      setTimeout(() => {
+        if (recorder.state !== "inactive") {
+          recorder.stop();
+        }
+      }, maxDurationMs);
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
+
+// ============================================================
 // Upload to GAS
 // ============================================================
 
@@ -1583,14 +1704,15 @@ function getGasUrl() {
   return localStorage.getItem("gas_webapp_url") || DEFAULT_GAS_URL;
 }
 
-function generateFilename() {
+function generateFilename(ext) {
+  ext = ext || "m4a";
   const now = new Date();
   const y = now.getFullYear();
   const mo = String(now.getMonth() + 1).padStart(2, "0");
   const d = String(now.getDate()).padStart(2, "0");
   const h = String(now.getHours()).padStart(2, "0");
   const mi = String(now.getMinutes()).padStart(2, "0");
-  return `${y}-${mo}-${d}_${h}${mi}_振り返り.wav`;
+  return `${y}-${mo}-${d}_${h}${mi}_振り返り.${ext}`;
 }
 
 function blobToBase64(blob) {
@@ -1802,6 +1924,153 @@ function el(tag, attrs) {
     }
   }
   return e;
+}
+
+// ============================================================
+// Visibilitychange: Background/Foreground handling
+// ============================================================
+
+let pausedByBackground = false;
+
+function onVisibilityChange() {
+  if (document.visibilityState === "hidden") {
+    // Going to background
+    if (appState === "recording") {
+      // Auto-pause to protect recording data
+      pausedByBackground = true;
+      pauseRecording();
+    }
+  } else if (document.visibilityState === "visible") {
+    // Returning to foreground
+    if (pausedByBackground) {
+      pausedByBackground = false;
+      showBackgroundPauseBanner();
+    }
+  }
+}
+
+function showBackgroundPauseBanner() {
+  const banner = document.getElementById("bgPauseBanner");
+  banner.classList.add("show");
+  setTimeout(() => {
+    banner.classList.remove("show");
+  }, 4000);
+}
+
+// ============================================================
+// PWA Icons: Generate PNG from Canvas (iOS doesn't support SVG icons)
+// ============================================================
+
+function generatePWAIcons() {
+  const sizes = [192, 512];
+  const icons = [];
+
+  for (const size of sizes) {
+    const dataUrl = renderIconPNG(size);
+    icons.push({
+      src: dataUrl,
+      sizes: `${size}x${size}`,
+      type: "image/png",
+    });
+  }
+
+  // Build manifest JSON
+  const manifest = {
+    name: "振り返り録音",
+    short_name: "録音",
+    description: "授業振り返り音声をGoogle Driveに自動保存",
+    start_url: ".",
+    display: "standalone",
+    background_color: "#f5f7fa",
+    theme_color: "#e74c3c",
+    orientation: "portrait",
+    icons: icons,
+  };
+
+  // Set manifest via data URI
+  const manifestJson = JSON.stringify(manifest);
+  const manifestBlob = new Blob([manifestJson], { type: "application/json" });
+  const manifestUrl = URL.createObjectURL(manifestBlob);
+  document.getElementById("manifestLink").href = manifestUrl;
+
+  // Set apple-touch-icon (180x180 PNG)
+  const applePng = renderIconPNG(180);
+  document.getElementById("appleTouchIcon").href = applePng;
+}
+
+function renderIconPNG(size) {
+  const canvas = document.createElement("canvas");
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext("2d");
+
+  // Red rounded rectangle background
+  const radius = size * 0.2;
+  ctx.fillStyle = "#e74c3c";
+  ctx.beginPath();
+  ctx.moveTo(radius, 0);
+  ctx.lineTo(size - radius, 0);
+  ctx.quadraticCurveTo(size, 0, size, radius);
+  ctx.lineTo(size, size - radius);
+  ctx.quadraticCurveTo(size, size, size - radius, size);
+  ctx.lineTo(radius, size);
+  ctx.quadraticCurveTo(0, size, 0, size - radius);
+  ctx.lineTo(0, radius);
+  ctx.quadraticCurveTo(0, 0, radius, 0);
+  ctx.closePath();
+  ctx.fill();
+
+  // Microphone icon (simple stylized shape)
+  const cx = size / 2;
+  const cy = size / 2;
+  const s = size / 192; // scale factor based on 192px base
+
+  ctx.fillStyle = "#ffffff";
+  ctx.strokeStyle = "#ffffff";
+
+  // Mic body (rounded rect)
+  const micW = 36 * s;
+  const micH = 56 * s;
+  const micR = 18 * s;
+  const micTop = cy - 40 * s;
+  ctx.beginPath();
+  ctx.moveTo(cx - micW / 2 + micR, micTop);
+  ctx.lineTo(cx + micW / 2 - micR, micTop);
+  ctx.quadraticCurveTo(cx + micW / 2, micTop, cx + micW / 2, micTop + micR);
+  ctx.lineTo(cx + micW / 2, micTop + micH - micR);
+  ctx.quadraticCurveTo(cx + micW / 2, micTop + micH, cx + micW / 2 - micR, micTop + micH);
+  ctx.lineTo(cx - micW / 2 + micR, micTop + micH);
+  ctx.quadraticCurveTo(cx - micW / 2, micTop + micH, cx - micW / 2, micTop + micH - micR);
+  ctx.lineTo(cx - micW / 2, micTop + micR);
+  ctx.quadraticCurveTo(cx - micW / 2, micTop, cx - micW / 2 + micR, micTop);
+  ctx.closePath();
+  ctx.fill();
+
+  // Mic holder arc
+  const arcR = 30 * s;
+  const arcY = cy - 4 * s;
+  ctx.lineWidth = 5 * s;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.arc(cx, arcY, arcR, 0, Math.PI, false);
+  ctx.stroke();
+
+  // Stand line
+  const standTop = arcY + arcR;
+  const standBottom = standTop + 20 * s;
+  ctx.beginPath();
+  ctx.moveTo(cx, standTop);
+  ctx.lineTo(cx, standBottom);
+  ctx.stroke();
+
+  // Base line
+  const baseW = 28 * s;
+  ctx.beginPath();
+  ctx.moveTo(cx - baseW / 2, standBottom);
+  ctx.lineTo(cx + baseW / 2, standBottom);
+  ctx.stroke();
+
+  return canvas.toDataURL("image/png");
 }
 
 // ============================================================
