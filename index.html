@@ -42,140 +42,157 @@ body {
   -webkit-touch-callout: none;
 }
 
+/* ---- Header ---- */
 .header {
-  text-align: center;
-  padding: 20px 0 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 400px;
+  padding: 16px 0 4px;
+  position: relative;
   flex-shrink: 0;
 }
 
 .header h1 {
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 700;
   color: #2c3e50;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
 }
 
-.header .date {
+.settings-btn {
+  position: absolute;
+  right: 0;
+  top: 12px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: rgba(0,0,0,0.05);
+  border-radius: 50%;
+  font-size: 18px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.date-display {
   font-size: 14px;
   color: #7f8c8d;
-  margin-top: 4px;
-}
-
-.timer-area {
-  flex-shrink: 0;
-  padding: 24px 0 16px;
-}
-
-.timer {
-  font-size: 64px;
-  font-weight: 200;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 2px;
-  color: #2c3e50;
   text-align: center;
-  transition: color 0.3s;
+  margin-bottom: 12px;
+  flex-shrink: 0;
 }
 
-.timer.recording {
-  color: #e74c3c;
+/* ---- Waveform Canvas ---- */
+.waveform-area {
+  width: 100%;
+  max-width: 400px;
+  flex-shrink: 0;
+  padding: 0 4px;
 }
 
-.timer.paused {
-  color: #f39c12;
+.waveform-canvas {
+  width: 100%;
+  height: 100px;
+  border-radius: 12px;
+  background: #fff;
+  display: block;
+  touch-action: none;
 }
 
-.waveform {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 3px;
-  height: 40px;
-  margin-top: 8px;
+/* ---- Time display ---- */
+.time-display {
+  text-align: center;
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+  color: #2c3e50;
+  padding: 8px 0 4px;
+  flex-shrink: 0;
+  min-height: 32px;
 }
 
-.waveform .bar {
-  width: 4px;
-  height: 8px;
-  background: #bdc3c7;
-  border-radius: 2px;
-  transition: height 0.1s ease, background 0.3s;
+.time-display .current-time {
+  font-weight: 600;
 }
 
-.waveform.active .bar {
-  background: #e74c3c;
-  animation: wave 0.5s ease-in-out infinite alternate;
+.time-display .total-time {
+  color: #95a5a6;
 }
 
-.waveform.paused-anim .bar {
-  background: #f39c12;
-  height: 8px !important;
-  animation: none;
-}
-
-@keyframes wave {
-  from { height: 4px; }
-  to { height: 36px; }
-}
-
-.waveform .bar:nth-child(1) { animation-delay: 0s; }
-.waveform .bar:nth-child(2) { animation-delay: 0.1s; }
-.waveform .bar:nth-child(3) { animation-delay: 0.2s; }
-.waveform .bar:nth-child(4) { animation-delay: 0.3s; }
-.waveform .bar:nth-child(5) { animation-delay: 0.05s; }
-.waveform .bar:nth-child(6) { animation-delay: 0.15s; }
-.waveform .bar:nth-child(7) { animation-delay: 0.25s; }
-.waveform .bar:nth-child(8) { animation-delay: 0.08s; }
-.waveform .bar:nth-child(9) { animation-delay: 0.18s; }
-
+/* ---- Controls ---- */
 .controls {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 24px;
-  padding: 16px 0;
+  gap: 20px;
+  padding: 12px 0;
   flex-shrink: 0;
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: 400px;
 }
 
-.btn {
+.btn-action {
+  height: 48px;
+  padding: 0 20px;
   border: none;
+  border-radius: 24px;
+  font-size: 15px;
+  font-weight: 600;
   cursor: pointer;
-  border-radius: 50%;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.12s, opacity 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.15s, box-shadow 0.15s, opacity 0.3s;
-  -webkit-tap-highlight-color: transparent;
+  gap: 6px;
+  white-space: nowrap;
 }
 
-.btn:active {
-  transform: scale(0.92);
+.btn-action:active {
+  transform: scale(0.95);
 }
 
-.btn:disabled {
-  opacity: 0.3;
+.btn-action:disabled {
+  opacity: 0.35;
   cursor: default;
   transform: none;
 }
 
+/* Record button (large red circle) */
 .btn-record {
-  width: 100px;
-  height: 100px;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
   background: #e74c3c;
-  box-shadow: 0 4px 20px rgba(231, 76, 60, 0.4);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(231,76,60,0.35);
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.12s, box-shadow 0.3s;
+  flex-shrink: 0;
 }
 
-.btn-record .icon {
-  width: 36px;
-  height: 36px;
-  background: white;
+.btn-record:active {
+  transform: scale(0.93);
+}
+
+.btn-record .inner {
+  width: 28px;
+  height: 28px;
+  background: #fff;
   border-radius: 50%;
   transition: border-radius 0.2s, width 0.2s, height 0.2s;
 }
 
-.btn-record.is-recording .icon {
+.btn-record.recording .inner {
+  width: 22px;
+  height: 22px;
   border-radius: 4px;
-  width: 28px;
-  height: 28px;
 }
 
 .btn-record.pulse {
@@ -183,66 +200,89 @@ body {
 }
 
 @keyframes pulse {
-  0%, 100% { box-shadow: 0 4px 20px rgba(231, 76, 60, 0.4); }
-  50% { box-shadow: 0 4px 40px rgba(231, 76, 60, 0.7); }
+  0%, 100% { box-shadow: 0 4px 20px rgba(231,76,60,0.35); }
+  50% { box-shadow: 0 4px 40px rgba(231,76,60,0.65); }
 }
 
+/* Pause button */
 .btn-pause {
-  width: 64px;
-  height: 64px;
   background: #f39c12;
-  box-shadow: 0 3px 12px rgba(243, 156, 18, 0.3);
+  color: #fff;
+  box-shadow: 0 2px 10px rgba(243,156,18,0.25);
 }
 
-.btn-pause.is-paused {
+/* Play button */
+.btn-play {
+  background: #3498db;
+  color: #fff;
+  box-shadow: 0 2px 10px rgba(52,152,219,0.25);
+}
+
+/* Overwrite record button */
+.btn-overwrite {
+  background: #e74c3c;
+  color: #fff;
+  box-shadow: 0 2px 10px rgba(231,76,60,0.25);
+}
+
+/* Done/finish button */
+.btn-done {
   background: #27ae60;
-  box-shadow: 0 3px 12px rgba(39, 174, 96, 0.3);
+  color: #fff;
+  box-shadow: 0 2px 10px rgba(39,174,96,0.25);
 }
 
-.btn-pause.blink {
-  animation: blink 1s step-end infinite;
+/* Retake button */
+.btn-retake {
+  background: none;
+  color: #e74c3c;
+  font-size: 14px;
+  height: 40px;
+  padding: 0 16px;
+  width: 100%;
 }
 
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+/* Idle start button */
+.btn-start-record {
+  width: 100%;
+  max-width: 280px;
+  height: 56px;
+  border: none;
+  border-radius: 28px;
+  background: #e74c3c;
+  color: #fff;
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 20px rgba(231,76,60,0.35);
+  transition: transform 0.12s;
 }
 
-.btn-pause svg {
-  width: 28px;
-  height: 28px;
-  fill: white;
+.btn-start-record:active {
+  transform: scale(0.96);
 }
 
-.btn-stop {
-  width: 64px;
-  height: 64px;
-  background: #95a5a6;
-  box-shadow: 0 3px 12px rgba(149, 165, 166, 0.3);
-}
+.hidden { display: none !important; }
 
-.btn-stop svg {
-  width: 24px;
-  height: 24px;
-  fill: white;
-}
-
-.hidden {
-  display: none !important;
-}
-
+/* ---- Status ---- */
 .status-area {
   flex-shrink: 0;
   text-align: center;
-  padding: 12px 0;
-  min-height: 60px;
+  padding: 8px 0;
+  min-height: 44px;
 }
 
 .status {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 500;
-  padding: 8px 20px;
-  border-radius: 20px;
+  padding: 6px 16px;
+  border-radius: 16px;
   display: inline-block;
   transition: all 0.3s;
 }
@@ -253,9 +293,10 @@ body {
 .status.uploading { background: #eaf2f8; color: #2980b9; }
 .status.done { background: #eafaf1; color: #27ae60; }
 .status.error { background: #fdecea; color: #c0392b; }
+.status.confirm { background: #eaf2f8; color: #2980b9; }
 
 .upload-progress {
-  margin-top: 8px;
+  margin-top: 6px;
   width: 200px;
   height: 4px;
   background: #ecf0f1;
@@ -272,6 +313,82 @@ body {
   width: 0%;
 }
 
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #3498db;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ---- Confirm overlay ---- */
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.confirm-panel {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  width: 100%;
+  max-width: 340px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.15);
+  text-align: center;
+}
+
+.confirm-panel h2 {
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+.confirm-panel p {
+  font-size: 14px;
+  color: #7f8c8d;
+  margin-bottom: 20px;
+}
+
+.confirm-panel .btn-row {
+  display: flex;
+  gap: 10px;
+}
+
+.confirm-panel button {
+  flex: 1;
+  height: 44px;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.confirm-panel .btn-save {
+  background: #27ae60;
+  color: #fff;
+}
+
+.confirm-panel .btn-discard {
+  background: #ecf0f1;
+  color: #7f8c8d;
+}
+
+/* ---- History ---- */
 .history-area {
   flex: 1;
   width: 100%;
@@ -290,12 +407,10 @@ body {
   padding-left: 4px;
 }
 
-.history-list {
-  list-style: none;
-}
+.history-list { list-style: none; }
 
 .history-item {
-  background: white;
+  background: #fff;
   border-radius: 12px;
   padding: 12px 16px;
   margin-bottom: 8px;
@@ -317,10 +432,7 @@ body {
   flex-shrink: 0;
 }
 
-.history-item .info {
-  flex: 1;
-  min-width: 0;
-}
+.history-item .info { flex: 1; min-width: 0; }
 
 .history-item .filename {
   font-size: 13px;
@@ -344,40 +456,7 @@ body {
   padding: 20px;
 }
 
-/* Spinner for upload */
-.spinner {
-  display: inline-block;
-  width: 18px;
-  height: 18px;
-  border: 2px solid #3498db;
-  border-top-color: transparent;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  vertical-align: middle;
-  margin-right: 6px;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* Settings overlay */
-.settings-btn {
-  position: fixed;
-  top: env(safe-area-inset-top, 12px);
-  right: 12px;
-  margin-top: 12px;
-  width: 36px;
-  height: 36px;
-  border: none;
-  background: rgba(0,0,0,0.05);
-  border-radius: 50%;
-  font-size: 18px;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  z-index: 10;
-}
-
+/* ---- Settings overlay ---- */
 .settings-overlay {
   position: fixed;
   inset: 0;
@@ -390,7 +469,7 @@ body {
 }
 
 .settings-panel {
-  background: white;
+  background: #fff;
   border-radius: 16px;
   padding: 24px;
   width: 100%;
@@ -437,168 +516,200 @@ body {
 
 .settings-panel .btn-save {
   background: #3498db;
-  color: white;
+  color: #fff;
 }
 
 .settings-panel .btn-cancel {
   background: #ecf0f1;
   color: #7f8c8d;
 }
-
-/* 一時停止中アクションパネル */
-.pause-actions {
-  padding: 12px 20px;
-  background: #fff9e6;
-  border-radius: 16px;
-  margin: 0 20px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-}
-.pause-actions.hidden { display: none; }
-.pause-buttons {
-  display: flex; gap: 10px;
-}
-.pause-action-btn {
-  flex: 1; padding: 12px 8px; border: none; border-radius: 12px;
-  font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit;
-}
-.resume-btn { background: #27ae60; color: white; }
-.retake-btn { background: #e74c3c; color: white; }
-.stop-save-btn { background: #3498db; color: white; }
-.pause-label { font-size: 13px; font-weight: 600; color: #7f8c8d; margin-bottom: 6px; text-align: center; }
-.player-row {
-  display: flex; align-items: center; gap: 8px; margin-bottom: 12px;
-}
-.play-btn {
-  width: 36px; height: 36px; border-radius: 50%; border: none;
-  background: #3498db; color: white; font-size: 16px; cursor: pointer;
-  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-}
-.seek-slider {
-  flex: 1; height: 6px; -webkit-appearance: none; appearance: none;
-  background: #ddd; border-radius: 3px; outline: none;
-}
-.seek-slider::-webkit-slider-thumb {
-  -webkit-appearance: none; width: 18px; height: 18px;
-  background: #3498db; border-radius: 50%; cursor: pointer;
-}
-.play-time { font-size: 11px; color: #7f8c8d; white-space: nowrap; min-width: 70px; }
 </style>
 </head>
 <body>
 
-<button class="settings-btn" onclick="openSettings()" aria-label="設定">&#9881;</button>
-
+<!-- ===== Header ===== -->
 <div class="header">
   <h1>振り返り録音</h1>
-  <div class="date" id="dateDisplay"></div>
+  <button class="settings-btn" id="btnSettings" aria-label="設定">&#9881;</button>
+</div>
+<div class="date-display" id="dateDisplay"></div>
+
+<!-- ===== Waveform ===== -->
+<div class="waveform-area">
+  <canvas class="waveform-canvas" id="waveformCanvas"></canvas>
 </div>
 
-<div class="timer-area">
-  <div class="timer" id="timer">00:00</div>
-  <div class="waveform" id="waveform">
-    <div class="bar"></div><div class="bar"></div><div class="bar"></div>
-    <div class="bar"></div><div class="bar"></div><div class="bar"></div>
-    <div class="bar"></div><div class="bar"></div><div class="bar"></div>
-  </div>
+<!-- ===== Time ===== -->
+<div class="time-display" id="timeDisplay">
+  <span class="current-time">00:00</span>
 </div>
 
-<div class="controls">
-  <button class="btn btn-pause hidden" id="btnPause" onclick="togglePause()" aria-label="一時停止">
-    <svg id="pauseIcon" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
-  </button>
-
-  <button class="btn btn-record" id="btnRecord" onclick="toggleRecord()" aria-label="録音開始">
-    <div class="icon"></div>
-  </button>
-
-  <button class="btn btn-stop hidden" id="btnStop" onclick="stopRecording()" aria-label="停止">
-    <svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
-  </button>
+<!-- ===== Controls (swapped per state) ===== -->
+<div class="controls" id="controls">
+  <!-- Populated by JS based on state -->
 </div>
 
-<!-- 一時停止中アクションパネル -->
-<div class="pause-actions hidden" id="pauseActions">
-  <div class="pause-label">ここまでの録音を確認</div>
-  <canvas id="waveformCanvas" width="600" height="60" style="width:100%;height:60px;border-radius:8px;background:#fff;margin-bottom:6px;"></canvas>
-  <div class="player-row">
-    <button class="play-btn" id="playPauseBtn" onclick="togglePlayPreview()">▶</button>
-    <input type="range" class="seek-slider" id="seekSlider" min="0" max="100" value="0" oninput="seekPreview(this.value)">
-    <span class="play-time" id="playTime">0:00 / 0:00</span>
-  </div>
-  <audio id="pausePreviewAudio" style="display:none;"></audio>
-  <div class="pause-buttons">
-    <button class="pause-action-btn resume-btn" onclick="hidePauseActions();resumeRecording();">▶ 続きから録音</button>
-    <button class="pause-action-btn retake-btn" onclick="retakeFromPause()">🔄 撮り直し</button>
-    <button class="pause-action-btn stop-save-btn" onclick="stopRecording()">💾 保存する</button>
-  </div>
-</div>
-
+<!-- ===== Status ===== -->
 <div class="status-area">
   <div class="status idle" id="status">待機中</div>
   <div class="upload-progress hidden" id="uploadProgress"><div class="bar" id="uploadBar"></div></div>
 </div>
 
+<!-- ===== History ===== -->
 <div class="history-area">
   <div class="history-title">録音履歴</div>
   <ul class="history-list" id="historyList">
-    <li class="empty-history" id="emptyHistory">まだ録音はありません</li>
+    <li class="empty-history">まだ録音はありません</li>
   </ul>
 </div>
 
-<!-- Settings Overlay -->
-<div class="settings-overlay hidden" id="settingsOverlay" onclick="closeSettingsOnBackdrop(event)">
+<!-- ===== Confirm Save Overlay ===== -->
+<div class="confirm-overlay hidden" id="confirmOverlay">
+  <div class="confirm-panel">
+    <h2>録音を保存しますか？</h2>
+    <p id="confirmInfo"></p>
+    <div class="btn-row">
+      <button class="btn-discard" id="btnDiscard">破棄</button>
+      <button class="btn-save" id="btnSave">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Settings Overlay ===== -->
+<div class="settings-overlay hidden" id="settingsOverlay">
   <div class="settings-panel">
     <h2>設定</h2>
     <label for="gasUrlInput">GAS WebアプリURL</label>
     <input type="url" id="gasUrlInput" placeholder="https://script.google.com/macros/s/...">
     <div class="btn-row">
-      <button class="btn-cancel" onclick="closeSettings()">キャンセル</button>
-      <button class="btn-save" onclick="saveSettings()">保存</button>
+      <button class="btn-cancel" id="btnSettingsCancel">キャンセル</button>
+      <button class="btn-save" id="btnSettingsSave">保存</button>
     </div>
   </div>
 </div>
 
 <script>
 // ============================================================
-// 設定
+// Constants
 // ============================================================
 
-// GAS WebアプリURL（デプロイ後にここを書き換えるか、設定画面から入力）
 const DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycbz6NFcJuQAWX6zXGVlGol3dbs7uq0ctuVgOIsEzUItbQZL-IQwAZLejJEfgKaEv9wIM/exec";
-
-function getGasUrl() {
-  return localStorage.getItem("gas_webapp_url") || DEFAULT_GAS_URL;
-}
-
-// チャンクサイズ（Base64文字数単位）: GASのPOST上限が約50MBなので余裕を持って30MBに設定
-// 通常の録音（数分）では一括送信で問題ない
-const CHUNK_SIZE = 30 * 1024 * 1024; // ~30MB in base64
+const CHUNK_SIZE = 30 * 1024 * 1024;
+const HISTORY_KEY = "voice_recorder_history";
+const MAX_HISTORY = 5;
+const SAMPLE_RATE = 44100;
 
 // ============================================================
-// 状態管理
+// State
 // ============================================================
 
+// App state: idle | recording | paused | confirm | uploading | done
+let appState = "idle";
+
+// PCM audio buffer: Float32Array, accumulated from all recording segments
+let pcmBuffer = null; // Float32Array or null
+
+// MediaRecorder + stream
 let mediaRecorder = null;
-let audioChunks = [];      // MediaRecorderから得られるBlobチャンク
-let recordingSegments = []; // pause/resume非対応時に使う: 各セグメントのBlob配列
-let stream = null;
+let mediaStream = null;
+let recorderChunks = [];
+
+// For real-time waveform during recording
+let audioContext = null;
+let analyserNode = null;
+let sourceNode = null;
+
+// Timer
 let timerInterval = null;
-let startTime = null;
-let pausedElapsed = 0;     // 一時停止前の累計時間(ms)
-let state = "idle";        // idle | recording | paused | uploading | done
-let supportsPauseResume = false;
-let isPausingNotStopping = false; // pause非対応時にonstopがhandleRecordingCompleteを呼ぶのを防ぐフラグ
-let finalDurationMs = 0; // 停止時に確定する録音時間(ms)
+let recordingStartTime = 0;
+let accumulatedTimeMs = 0; // total recorded time in ms before current segment
+
+// Paused state playback
+let playbackSource = null; // AudioBufferSourceNode for playback
+let playbackStartTime = 0; // audioContext.currentTime when playback started
+let playbackOffset = 0; // offset in seconds where playback started
+let isPlaying = false;
+
+// Overwrite position (in samples)
+let overwritePositionSamples = 0;
+
+// Canvas animation
+let animFrameId = null;
+
+// Seek position during pause (in seconds)
+let seekPositionSec = 0;
+
+// Flag: is touch/mouse dragging the waveform
+let isDraggingWaveform = false;
 
 // ============================================================
-// 初期化
+// DOM refs
+// ============================================================
+
+const $canvas = document.getElementById("waveformCanvas");
+const $timeDisplay = document.getElementById("timeDisplay");
+const $controls = document.getElementById("controls");
+const $status = document.getElementById("status");
+const $dateDisplay = document.getElementById("dateDisplay");
+const $confirmOverlay = document.getElementById("confirmOverlay");
+const $confirmInfo = document.getElementById("confirmInfo");
+const $uploadProgress = document.getElementById("uploadProgress");
+const $uploadBar = document.getElementById("uploadBar");
+const $settingsOverlay = document.getElementById("settingsOverlay");
+const $historyList = document.getElementById("historyList");
+
+// ============================================================
+// Init
 // ============================================================
 
 document.addEventListener("DOMContentLoaded", () => {
   updateDateDisplay();
   loadHistory();
-  checkMediaRecorderSupport();
+  resizeCanvas();
+  renderState();
+  setupEventListeners();
 });
+
+window.addEventListener("resize", () => {
+  resizeCanvas();
+  if (appState === "paused") drawStaticWaveform();
+});
+
+function resizeCanvas() {
+  const rect = $canvas.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  $canvas.width = rect.width * dpr;
+  $canvas.height = rect.height * dpr;
+  const ctx = $canvas.getContext("2d");
+  ctx.scale(dpr, dpr);
+}
+
+function setupEventListeners() {
+  // Settings
+  document.getElementById("btnSettings").addEventListener("click", openSettings);
+  document.getElementById("btnSettingsCancel").addEventListener("click", closeSettings);
+  document.getElementById("btnSettingsSave").addEventListener("click", saveSettings);
+  $settingsOverlay.addEventListener("click", (e) => {
+    if (e.target === $settingsOverlay) closeSettings();
+  });
+
+  // Confirm overlay
+  document.getElementById("btnSave").addEventListener("click", doSave);
+  document.getElementById("btnDiscard").addEventListener("click", doDiscard);
+  $confirmOverlay.addEventListener("click", (e) => {
+    if (e.target === $confirmOverlay) { /* do nothing, require explicit choice */ }
+  });
+
+  // Waveform touch/mouse for seeking (only active in paused state)
+  $canvas.addEventListener("pointerdown", onWaveformPointerDown);
+  $canvas.addEventListener("pointermove", onWaveformPointerMove);
+  $canvas.addEventListener("pointerup", onWaveformPointerUp);
+  $canvas.addEventListener("pointercancel", onWaveformPointerUp);
+}
+
+// ============================================================
+// Date display
+// ============================================================
 
 function updateDateDisplay() {
   const now = new Date();
@@ -606,447 +717,886 @@ function updateDateDisplay() {
   const m = String(now.getMonth() + 1).padStart(2, "0");
   const d = String(now.getDate()).padStart(2, "0");
   const days = ["日", "月", "火", "水", "木", "金", "土"];
-  document.getElementById("dateDisplay").textContent = `${y}年${m}月${d}日（${days[now.getDay()]}）`;
+  $dateDisplay.textContent = `${y}年${m}月${d}日（${days[now.getDay()]}）`;
 }
 
-function checkMediaRecorderSupport() {
-  if (typeof MediaRecorder === "undefined") {
-    setStatus("error", "このブラウザは録音に対応していません");
-    document.getElementById("btnRecord").disabled = true;
-    return;
+// ============================================================
+// State rendering
+// ============================================================
+
+function renderState() {
+  // Update controls
+  renderControls();
+  // Update status badge
+  renderStatus();
+  // Update time display
+  renderTimeDisplay();
+  // Update waveform
+  if (appState === "idle" || appState === "done") {
+    clearCanvas();
   }
-  // pause/resumeサポート確認
-  supportsPauseResume = typeof MediaRecorder.prototype.pause === "function"
-    && typeof MediaRecorder.prototype.resume === "function";
 }
 
-// ============================================================
-// 録音フォーマット選択（iOS Safari互換性重視）
-// ============================================================
+function renderControls() {
+  $controls.innerHTML = "";
 
-function getSupportedMimeType() {
-  // iOS SafariではMediaRecorder.isTypeSupported()が
-  // 正しく機能しない場合があるため、順番に試す
-  const candidates = [
-    { mimeType: "audio/mp4",  ext: "m4a" },
-    { mimeType: "audio/aac",  ext: "aac" },
-    { mimeType: "audio/webm;codecs=opus", ext: "webm" },
-    { mimeType: "audio/webm", ext: "webm" },
-    { mimeType: "audio/ogg;codecs=opus",  ext: "ogg" },
-  ];
+  switch (appState) {
+    case "idle":
+    case "done": {
+      const btn = el("button", { class: "btn-start-record", id: "btnStartRecord" });
+      btn.innerHTML = "&#9210; タップして録音開始";
+      btn.addEventListener("click", startRecording);
+      $controls.appendChild(btn);
+      break;
+    }
 
-  for (const c of candidates) {
-    try {
-      if (MediaRecorder.isTypeSupported(c.mimeType)) {
-        return c;
-      }
-    } catch (e) {
-      // ignore
+    case "recording": {
+      // Pause | Record(stop-shape) | Done
+      const btnPause = el("button", { class: "btn-action btn-pause" });
+      btnPause.textContent = "⏸ 一時停止";
+      btnPause.addEventListener("click", pauseRecording);
+
+      const btnRec = el("button", { class: "btn-record recording pulse", id: "btnRecordMain" });
+      btnRec.innerHTML = '<div class="inner"></div>';
+      // During recording, tapping the record button does nothing (pause is separate)
+      btnRec.style.pointerEvents = "none";
+
+      const btnDone = el("button", { class: "btn-action btn-done" });
+      btnDone.textContent = "完了";
+      btnDone.addEventListener("click", finishRecording);
+
+      $controls.appendChild(btnPause);
+      $controls.appendChild(btnRec);
+      $controls.appendChild(btnDone);
+      break;
+    }
+
+    case "paused": {
+      // Play | Overwrite Record | Done
+      const btnPlay = el("button", { class: "btn-action btn-play", id: "btnPlay" });
+      btnPlay.textContent = isPlaying ? "⏸ 停止" : "▶ 再生";
+      btnPlay.addEventListener("click", togglePlayback);
+
+      const btnOverwrite = el("button", { class: "btn-action btn-overwrite" });
+      btnOverwrite.textContent = "⏺ 上書き録音";
+      btnOverwrite.addEventListener("click", startOverwriteRecording);
+
+      const btnDone = el("button", { class: "btn-action btn-done" });
+      btnDone.textContent = "完了";
+      btnDone.addEventListener("click", finishRecording);
+
+      // Retake (full width row)
+      const btnRetake = el("button", { class: "btn-action btn-retake" });
+      btnRetake.textContent = "最初から撮り直し";
+      btnRetake.addEventListener("click", retakeRecording);
+
+      $controls.appendChild(btnPlay);
+      $controls.appendChild(btnOverwrite);
+      $controls.appendChild(btnDone);
+      $controls.appendChild(btnRetake);
+      break;
+    }
+
+    case "confirm":
+    case "uploading": {
+      // No controls, overlay is showing
+      break;
     }
   }
-
-  // フォールバック: デフォルトに任せる（iOS Safariはaudio/mp4になることが多い）
-  return { mimeType: "", ext: "m4a" };
 }
 
-// ============================================================
-// 録音制御
-// ============================================================
-
-async function toggleRecord() {
-  if (state === "idle" || state === "done") {
-    await startRecording();
+function renderStatus() {
+  switch (appState) {
+    case "idle":
+      setStatusBadge("idle", "待機中");
+      break;
+    case "recording":
+      setStatusBadge("recording", "録音中...");
+      break;
+    case "paused":
+      setStatusBadge("paused", "一時停止中 — 波形タップでシーク");
+      break;
+    case "confirm":
+      setStatusBadge("confirm", "保存を確認してください");
+      break;
+    case "uploading":
+      setStatusBadge("uploading", '<span class="spinner"></span>アップロード中...');
+      break;
+    case "done":
+      setStatusBadge("done", "保存しました");
+      break;
   }
 }
+
+function renderTimeDisplay() {
+  if (appState === "idle" || appState === "done") {
+    $timeDisplay.innerHTML = '<span class="current-time">00:00</span>';
+  } else if (appState === "recording") {
+    // Updated by timer
+  } else if (appState === "paused") {
+    const total = pcmBuffer ? pcmBuffer.length / SAMPLE_RATE : 0;
+    const cur = seekPositionSec;
+    $timeDisplay.innerHTML =
+      `<span class="current-time">${fmtTime(cur)}</span>` +
+      ` <span class="total-time">/ ${fmtTime(total)}</span>`;
+  }
+}
+
+function setStatusBadge(type, html) {
+  $status.className = "status " + type;
+  $status.innerHTML = html;
+}
+
+// ============================================================
+// Recording: Start
+// ============================================================
 
 async function startRecording() {
   try {
-    // マイクのパーミッション取得
-    stream = await navigator.mediaDevices.getUserMedia({
+    mediaStream = await navigator.mediaDevices.getUserMedia({
       audio: {
         echoCancellation: false,
         noiseSuppression: false,
         autoGainControl: true,
-        sampleRate: 44100,
+        sampleRate: SAMPLE_RATE,
       }
     });
   } catch (err) {
     if (err.name === "NotAllowedError" || err.name === "PermissionDeniedError") {
-      setStatus("error", "マイクの使用が許可されていません");
+      setStatusBadge("error", "マイクの使用が許可されていません");
     } else {
-      setStatus("error", "マイクの取得に失敗: " + err.message);
+      setStatusBadge("error", "マイクの取得に失敗: " + escapeHtml(err.message));
     }
     return;
   }
 
-  audioChunks = [];
-  recordingSegments = [];
-  const fmt = getSupportedMimeType();
+  // Reset state
+  pcmBuffer = null;
+  accumulatedTimeMs = 0;
+  seekPositionSec = 0;
+  overwritePositionSamples = 0;
 
-  const options = {};
-  if (fmt.mimeType) {
-    options.mimeType = fmt.mimeType;
+  beginMediaRecorder(false);
+
+  appState = "recording";
+  renderState();
+  startTimer();
+  startRealtimeWaveform();
+}
+
+// ============================================================
+// Recording: Pause
+// ============================================================
+
+async function pauseRecording() {
+  if (appState !== "recording" || !mediaRecorder) return;
+
+  stopTimer();
+  stopRealtimeWaveform();
+
+  // Calculate elapsed time for this segment
+  const segmentMs = Date.now() - recordingStartTime;
+  accumulatedTimeMs += segmentMs;
+
+  // Stop MediaRecorder to get data
+  const pcmSegment = await stopMediaRecorderAndDecode();
+
+  // Merge into pcmBuffer
+  if (pcmSegment) {
+    if (pcmBuffer) {
+      // If overwrite position is set, keep data up to that point, then append new
+      const keepSamples = overwritePositionSamples;
+      const newLen = keepSamples + pcmSegment.length;
+      const merged = new Float32Array(newLen);
+      merged.set(pcmBuffer.subarray(0, Math.min(keepSamples, pcmBuffer.length)));
+      merged.set(pcmSegment, keepSamples);
+      pcmBuffer = merged;
+    } else {
+      pcmBuffer = pcmSegment;
+    }
   }
+
+  // Update accumulated time from actual PCM length
+  if (pcmBuffer) {
+    accumulatedTimeMs = (pcmBuffer.length / SAMPLE_RATE) * 1000;
+  }
+
+  // Reset overwrite position to end
+  overwritePositionSamples = pcmBuffer ? pcmBuffer.length : 0;
+  seekPositionSec = pcmBuffer ? pcmBuffer.length / SAMPLE_RATE : 0;
+
+  appState = "paused";
+  renderState();
+  drawStaticWaveform();
+}
+
+// ============================================================
+// Recording: Resume (from end)
+// ============================================================
+
+function resumeRecording() {
+  if (appState !== "paused") return;
+
+  stopPlayback();
+
+  // Set overwrite position to end of buffer
+  overwritePositionSamples = pcmBuffer ? pcmBuffer.length : 0;
+
+  beginMediaRecorder(false);
+
+  appState = "recording";
+  renderState();
+  startTimer();
+  startRealtimeWaveform();
+}
+
+// ============================================================
+// Recording: Overwrite from seek position
+// ============================================================
+
+function startOverwriteRecording() {
+  if (appState !== "paused") return;
+
+  stopPlayback();
+
+  // Set overwrite position to current seek position
+  overwritePositionSamples = Math.round(seekPositionSec * SAMPLE_RATE);
+  // Update accumulated time: only the portion being kept
+  accumulatedTimeMs = (overwritePositionSamples / SAMPLE_RATE) * 1000;
+
+  beginMediaRecorder(false);
+
+  appState = "recording";
+  renderState();
+  startTimer();
+  startRealtimeWaveform();
+}
+
+// ============================================================
+// Recording: Finish (go to confirm)
+// ============================================================
+
+async function finishRecording() {
+  if (appState === "recording") {
+    // Need to stop recorder first
+    stopTimer();
+    stopRealtimeWaveform();
+
+    const segmentMs = Date.now() - recordingStartTime;
+    accumulatedTimeMs += segmentMs;
+
+    const pcmSegment = await stopMediaRecorderAndDecode();
+
+    if (pcmSegment) {
+      if (pcmBuffer) {
+        const keepSamples = overwritePositionSamples;
+        const newLen = keepSamples + pcmSegment.length;
+        const merged = new Float32Array(newLen);
+        merged.set(pcmBuffer.subarray(0, Math.min(keepSamples, pcmBuffer.length)));
+        merged.set(pcmSegment, keepSamples);
+        pcmBuffer = merged;
+      } else {
+        pcmBuffer = pcmSegment;
+      }
+    }
+
+    if (pcmBuffer) {
+      accumulatedTimeMs = (pcmBuffer.length / SAMPLE_RATE) * 1000;
+    }
+  } else if (appState === "paused") {
+    stopPlayback();
+  }
+
+  if (!pcmBuffer || pcmBuffer.length === 0) {
+    setStatusBadge("error", "録音データが空です");
+    resetToIdle();
+    return;
+  }
+
+  // Show confirm overlay
+  const totalSec = pcmBuffer.length / SAMPLE_RATE;
+  $confirmInfo.textContent = `録音時間: ${fmtTime(totalSec)}`;
+  $confirmOverlay.classList.remove("hidden");
+
+  appState = "confirm";
+  renderState();
+}
+
+// ============================================================
+// Recording: Retake
+// ============================================================
+
+function retakeRecording() {
+  stopPlayback();
+  releaseStream();
+  pcmBuffer = null;
+  accumulatedTimeMs = 0;
+  seekPositionSec = 0;
+  overwritePositionSamples = 0;
+
+  appState = "idle";
+  renderState();
+  setStatusBadge("idle", "録音を破棄しました");
+  setTimeout(() => {
+    if (appState === "idle") setStatusBadge("idle", "待機中");
+  }, 2000);
+}
+
+// ============================================================
+// Confirm: Save / Discard
+// ============================================================
+
+async function doSave() {
+  $confirmOverlay.classList.add("hidden");
+
+  if (!pcmBuffer || pcmBuffer.length === 0) {
+    setStatusBadge("error", "録音データがありません");
+    resetToIdle();
+    return;
+  }
+
+  appState = "uploading";
+  renderState();
+
+  const wavBlob = encodeWAV(pcmBuffer, SAMPLE_RATE);
+  const filename = generateFilename();
+  const totalSec = Math.floor(pcmBuffer.length / SAMPLE_RATE);
 
   try {
-    mediaRecorder = new MediaRecorder(stream, options);
+    const base64 = await blobToBase64(wavBlob);
+    await uploadToGAS(filename, base64, "audio/wav");
+
+    addHistory(filename, wavBlob.size, totalSec);
+
+    hideProgress();
+    appState = "done";
+    renderState();
+    releaseStream();
+    pcmBuffer = null;
+
+    setTimeout(() => {
+      if (appState === "done") {
+        appState = "idle";
+        renderState();
+      }
+    }, 3000);
+  } catch (err) {
+    hideProgress();
+    setStatusBadge("error", "アップロード失敗: " + escapeHtml(err.message));
+    offerDownload(wavBlob, filename);
+    resetToIdle();
+  }
+}
+
+function doDiscard() {
+  $confirmOverlay.classList.add("hidden");
+  releaseStream();
+  pcmBuffer = null;
+  accumulatedTimeMs = 0;
+  resetToIdle();
+  setStatusBadge("idle", "録音を破棄しました");
+  setTimeout(() => {
+    if (appState === "idle") setStatusBadge("idle", "待機中");
+  }, 2000);
+}
+
+function resetToIdle() {
+  appState = "idle";
+  renderState();
+}
+
+// ============================================================
+// MediaRecorder helpers
+// ============================================================
+
+function beginMediaRecorder(isOverwrite) {
+  recorderChunks = [];
+
+  const options = {};
+  const fmt = getSupportedMimeType();
+  if (fmt.mimeType) options.mimeType = fmt.mimeType;
+
+  try {
+    mediaRecorder = new MediaRecorder(mediaStream, options);
   } catch (e) {
-    // mimeType指定が失敗した場合はデフォルトで再試行
-    mediaRecorder = new MediaRecorder(stream);
+    mediaRecorder = new MediaRecorder(mediaStream);
   }
 
-  // 実際に使用されるmimeTypeを保存
-  mediaRecorder._fmt = fmt;
-  mediaRecorder._actualMimeType = mediaRecorder.mimeType || fmt.mimeType || "audio/mp4";
+  mediaRecorder._mimeType = mediaRecorder.mimeType || fmt.mimeType || "audio/mp4";
 
   mediaRecorder.ondataavailable = (e) => {
     if (e.data && e.data.size > 0) {
-      audioChunks.push(e.data);
+      recorderChunks.push(e.data);
     }
   };
 
+  // IMPORTANT: onstop does NOT trigger upload. It only resolves the promise.
+  // Upload is ONLY done via explicit save button.
+  mediaRecorder._stopResolve = null;
   mediaRecorder.onstop = () => {
-    // pause非対応フォールバックで一時停止のためにstopした場合は何もしない
-    if (isPausingNotStopping) {
-      isPausingNotStopping = false;
-      return;
-    }
-    // pause/resume非対応で複数セグメントがある場合は結合
-    if (!supportsPauseResume && recordingSegments.length > 0) {
-      // 最後のセグメント（stop時点のaudioChunks）も追加
-      if (audioChunks.length > 0) {
-        recordingSegments.push(new Blob(audioChunks, { type: mediaRecorder._actualMimeType }));
-      }
-      const combined = new Blob(recordingSegments, { type: mediaRecorder._actualMimeType });
-      handleRecordingComplete(combined);
-    } else {
-      const blob = new Blob(audioChunks, { type: mediaRecorder._actualMimeType });
-      handleRecordingComplete(blob);
+    if (mediaRecorder._stopResolve) {
+      mediaRecorder._stopResolve();
+      mediaRecorder._stopResolve = null;
     }
   };
 
-  // timeslice: 1秒ごとにデータ取得（一時停止対応のため細かく）
-  mediaRecorder.start(1000);
-
-  startTime = Date.now();
-  pausedElapsed = 0;
-  startTimer();
-  setState("recording");
+  mediaRecorder.start(500); // 500ms timeslice for finer granularity
+  recordingStartTime = Date.now();
 }
 
-function togglePause() {
-  if (state === "recording") {
-    pauseRecording();
-  } else if (state === "paused") {
-    resumeRecording();
-  }
-}
-
-let pausePreviewUrl = null;
-
-function pauseRecording() {
-  if (!mediaRecorder || mediaRecorder.state === "inactive") return;
-
-  if (supportsPauseResume) {
-    mediaRecorder.pause();
-  } else {
-    isPausingNotStopping = true;
-    mediaRecorder.stop();
-    recordingSegments.push(new Blob(audioChunks, { type: mediaRecorder._actualMimeType }));
-    audioChunks = [];
-  }
-
-  pausedElapsed += (Date.now() - startTime);
-  stopTimer();
-
-  // ここまでの録音をプレビュー用に生成
-  createPausePreview();
-  setState("paused");
-}
-
-function createPausePreview() {
-  // 既存プレビューを解放
-  if (pausePreviewUrl) { URL.revokeObjectURL(pausePreviewUrl); pausePreviewUrl = null; }
-
-  const mimeType = mediaRecorder._actualMimeType || "audio/mp4";
-  let previewBlob;
-  if (supportsPauseResume) {
-    previewBlob = new Blob(audioChunks, { type: mimeType });
-  } else {
-    previewBlob = new Blob(recordingSegments, { type: mimeType });
-  }
-
-  if (previewBlob.size > 0) {
-    pausePreviewUrl = URL.createObjectURL(previewBlob);
-    const audio = document.getElementById("pausePreviewAudio");
-    if (audio) {
-      audio.src = pausePreviewUrl;
-      audio.onended = () => {
-        document.getElementById("playPauseBtn").textContent = "▶";
-        isPlayingPreview = false;
-      };
-      audio.onloadedmetadata = () => updatePlayTime();
-    }
-    // 波形描画
-    drawWaveform(previewBlob);
-  }
-}
-
-function showPauseActions() {
-  document.getElementById("pauseActions").classList.remove("hidden");
-}
-
-function hidePauseActions() {
-  document.getElementById("pauseActions").classList.add("hidden");
-  const audio = document.getElementById("pausePreviewAudio");
-  if (audio) { audio.pause(); audio.src = ""; }
-  if (pausePreviewUrl) { URL.revokeObjectURL(pausePreviewUrl); pausePreviewUrl = null; }
-}
-
-// ============================================================
-// 一時停止中カスタムプレーヤー
-// ============================================================
-
-let isPlayingPreview = false;
-let previewAnimFrame = null;
-
-function togglePlayPreview() {
-  const audio = document.getElementById("pausePreviewAudio");
-  const btn = document.getElementById("playPauseBtn");
-  if (!audio || !audio.src) return;
-  if (audio.paused) {
-    audio.play();
-    btn.textContent = "⏸";
-    isPlayingPreview = true;
-    updateSeekLoop();
-  } else {
-    audio.pause();
-    btn.textContent = "▶";
-    isPlayingPreview = false;
-  }
-}
-
-function seekPreview(val) {
-  const audio = document.getElementById("pausePreviewAudio");
-  if (!audio || !audio.duration) return;
-  audio.currentTime = (val / 100) * audio.duration;
-  updatePlayTime();
-}
-
-function updateSeekLoop() {
-  const audio = document.getElementById("pausePreviewAudio");
-  const slider = document.getElementById("seekSlider");
-  if (!audio || audio.paused) { isPlayingPreview = false; return; }
-  if (audio.duration) {
-    slider.value = (audio.currentTime / audio.duration) * 100;
-  }
-  updatePlayTime();
-  previewAnimFrame = requestAnimationFrame(updateSeekLoop);
-}
-
-function updatePlayTime() {
-  const audio = document.getElementById("pausePreviewAudio");
-  const el = document.getElementById("playTime");
-  if (!audio) return;
-  const cur = formatTime(audio.currentTime || 0);
-  const dur = formatTime(audio.duration || 0);
-  el.textContent = `${cur} / ${dur}`;
-}
-
-function formatTime(sec) {
-  if (!isFinite(sec)) return "0:00";
-  const m = Math.floor(sec / 60);
-  const s = Math.floor(sec % 60);
-  return `${m}:${String(s).padStart(2, "0")}`;
-}
-
-// 波形描画（AudioContext解析）
-async function drawWaveform(blob) {
-  const canvas = document.getElementById("waveformCanvas");
-  if (!canvas) return;
-  const ctx = canvas.getContext("2d");
-  try {
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const arrayBuf = await blob.arrayBuffer();
-    const audioBuf = await audioCtx.decodeAudioData(arrayBuf);
-    const data = audioBuf.getChannelData(0);
-    const w = canvas.width;
-    const h = canvas.height;
-    const step = Math.floor(data.length / w);
-    ctx.clearRect(0, 0, w, h);
-    ctx.fillStyle = "#ecf0f1";
-    ctx.fillRect(0, 0, w, h);
-    ctx.strokeStyle = "#3498db";
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    for (let i = 0; i < w; i++) {
-      let min = 1, max = -1;
-      for (let j = 0; j < step; j++) {
-        const val = data[i * step + j] || 0;
-        if (val < min) min = val;
-        if (val > max) max = val;
-      }
-      const yMin = ((1 + min) / 2) * h;
-      const yMax = ((1 + max) / 2) * h;
-      ctx.moveTo(i, yMin);
-      ctx.lineTo(i, yMax);
-    }
-    ctx.stroke();
-    audioCtx.close();
-  } catch (e) {
-    // 波形描画失敗時はグレーバーを表示
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "#ecf0f1";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "#bdc3c7";
-    ctx.textAlign = "center";
-    ctx.fillText("波形を表示できません", canvas.width / 2, canvas.height / 2 + 4);
-  }
-}
-
-function retakeFromPause() {
-  // 録音を全て破棄して最初からやり直し
-  hidePauseActions();
-  if (mediaRecorder && mediaRecorder.state !== "inactive") {
-    isPausingNotStopping = true;
-    mediaRecorder.stop();
-  }
-  releaseStream();
-  audioChunks = [];
-  recordingSegments = [];
-  pausedElapsed = 0;
-  finalDurationMs = 0;
-  setState("idle");
-  setStatus("info", "録音を破棄しました。もう一度録音できます。");
-}
-
-function resumeRecording() {
-  if (supportsPauseResume && mediaRecorder && mediaRecorder.state === "paused") {
-    mediaRecorder.resume();
-  } else if (!supportsPauseResume) {
-    // 新しいMediaRecorderを作成して録音再開
-    audioChunks = [];
-    const options = {};
-    const fmt = mediaRecorder._fmt;
-    if (fmt && fmt.mimeType) options.mimeType = fmt.mimeType;
-
-    try {
-      const newRecorder = new MediaRecorder(stream, options);
-      newRecorder._fmt = fmt;
-      newRecorder._actualMimeType = newRecorder.mimeType || (fmt && fmt.mimeType) || "audio/mp4";
-
-      newRecorder.ondataavailable = (e) => {
-        if (e.data && e.data.size > 0) {
-          audioChunks.push(e.data);
-        }
-      };
-
-      newRecorder.onstop = () => {
-        // pause非対応フォールバックで一時停止のためにstopした場合は何もしない
-        if (isPausingNotStopping) {
-          isPausingNotStopping = false;
-          return;
-        }
-        if (audioChunks.length > 0) {
-          recordingSegments.push(new Blob(audioChunks, { type: newRecorder._actualMimeType }));
-        }
-        const combined = new Blob(recordingSegments, { type: newRecorder._actualMimeType });
-        handleRecordingComplete(combined);
-      };
-
-      mediaRecorder = newRecorder;
-      mediaRecorder.start(1000);
-    } catch (e) {
-      setStatus("error", "録音の再開に失敗しました");
+function stopMediaRecorderAndDecode() {
+  return new Promise((resolve) => {
+    if (!mediaRecorder || mediaRecorder.state === "inactive") {
+      resolve(null);
       return;
     }
-  }
 
-  startTime = Date.now();
-  startTimer();
-  setState("recording");
+    mediaRecorder._stopResolve = async () => {
+      const mimeType = mediaRecorder._mimeType;
+      if (recorderChunks.length === 0) {
+        resolve(null);
+        return;
+      }
+      const blob = new Blob(recorderChunks, { type: mimeType });
+      recorderChunks = [];
+
+      // Decode blob to PCM Float32Array
+      try {
+        const ctx = getAudioContext();
+        const arrayBuf = await blob.arrayBuffer();
+        const audioBuf = await ctx.decodeAudioData(arrayBuf);
+        const channelData = audioBuf.getChannelData(0);
+
+        // Resample if needed
+        if (audioBuf.sampleRate !== SAMPLE_RATE) {
+          const resampled = resampleBuffer(channelData, audioBuf.sampleRate, SAMPLE_RATE);
+          resolve(resampled);
+        } else {
+          // Return a copy so we don't hold the AudioBuffer
+          resolve(new Float32Array(channelData));
+        }
+      } catch (err) {
+        console.error("Decode error:", err);
+        resolve(null);
+      }
+    };
+
+    mediaRecorder.stop();
+  });
 }
 
-function stopRecording() {
-  if (!mediaRecorder) return;
-
-  // 最終的な録音時間を確定
-  if (state === "paused") {
-    // 一時停止中: pausedElapsedに全時間が入っている
-    finalDurationMs = pausedElapsed;
-  } else {
-    // 録音中: 現在のセグメント分を加算
-    finalDurationMs = pausedElapsed + (Date.now() - startTime);
+function resampleBuffer(inputData, fromRate, toRate) {
+  const ratio = fromRate / toRate;
+  const newLength = Math.round(inputData.length / ratio);
+  const output = new Float32Array(newLength);
+  for (let i = 0; i < newLength; i++) {
+    const srcIndex = i * ratio;
+    const low = Math.floor(srcIndex);
+    const high = Math.min(low + 1, inputData.length - 1);
+    const frac = srcIndex - low;
+    output[i] = inputData[low] * (1 - frac) + inputData[high] * frac;
   }
+  return output;
+}
 
-  if (state === "paused" && !supportsPauseResume) {
-    // すでにstopしてある場合（pause非対応フォールバック）、手動で完了処理
-    const combined = new Blob(recordingSegments, { type: mediaRecorder._actualMimeType });
-    handleRecordingComplete(combined);
-  } else if (mediaRecorder.state !== "inactive") {
-    mediaRecorder.stop();
+function getSupportedMimeType() {
+  const candidates = [
+    { mimeType: "audio/mp4", ext: "m4a" },
+    { mimeType: "audio/aac", ext: "aac" },
+    { mimeType: "audio/webm;codecs=opus", ext: "webm" },
+    { mimeType: "audio/webm", ext: "webm" },
+    { mimeType: "audio/ogg;codecs=opus", ext: "ogg" },
+  ];
+  for (const c of candidates) {
+    try {
+      if (MediaRecorder.isTypeSupported(c.mimeType)) return c;
+    } catch (e) { /* ignore */ }
   }
-
-  stopTimer();
-  releaseStream();
+  return { mimeType: "", ext: "m4a" };
 }
 
 function releaseStream() {
-  if (stream) {
-    stream.getTracks().forEach(t => t.stop());
-    stream = null;
+  if (mediaStream) {
+    mediaStream.getTracks().forEach(t => t.stop());
+    mediaStream = null;
   }
+  // Don't close AudioContext - reuse it
+}
+
+function getAudioContext() {
+  if (!audioContext || audioContext.state === "closed") {
+    audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: SAMPLE_RATE });
+  }
+  if (audioContext.state === "suspended") {
+    audioContext.resume();
+  }
+  return audioContext;
 }
 
 // ============================================================
-// 録音完了 → アップロード
+// Timer
 // ============================================================
 
-async function handleRecordingComplete(blob) {
-  if (blob.size === 0) {
-    setStatus("error", "録音データが空です");
-    setState("idle");
+function startTimer() {
+  recordingStartTime = Date.now();
+  updateTimerDisplay();
+  timerInterval = setInterval(updateTimerDisplay, 200);
+}
+
+function stopTimer() {
+  clearInterval(timerInterval);
+  timerInterval = null;
+}
+
+function updateTimerDisplay() {
+  const elapsed = accumulatedTimeMs + (Date.now() - recordingStartTime);
+  const totalSec = elapsed / 1000;
+  $timeDisplay.innerHTML = `<span class="current-time">${fmtTime(totalSec)}</span>`;
+}
+
+// ============================================================
+// Waveform: Realtime (during recording)
+// ============================================================
+
+function startRealtimeWaveform() {
+  try {
+    const ctx = getAudioContext();
+    if (sourceNode) {
+      try { sourceNode.disconnect(); } catch(e) {}
+    }
+    sourceNode = ctx.createMediaStreamSource(mediaStream);
+    analyserNode = ctx.createAnalyser();
+    analyserNode.fftSize = 256;
+    sourceNode.connect(analyserNode);
+    drawRealtimeWaveform();
+  } catch (err) {
+    console.error("Realtime waveform error:", err);
+  }
+}
+
+function stopRealtimeWaveform() {
+  if (animFrameId) {
+    cancelAnimationFrame(animFrameId);
+    animFrameId = null;
+  }
+  if (sourceNode) {
+    try { sourceNode.disconnect(); } catch(e) {}
+    sourceNode = null;
+  }
+  analyserNode = null;
+}
+
+function drawRealtimeWaveform() {
+  if (!analyserNode) return;
+
+  const canvas = $canvas;
+  const ctx = canvas.getContext("2d");
+  const w = canvas.getBoundingClientRect().width;
+  const h = canvas.getBoundingClientRect().height;
+
+  const bufferLength = analyserNode.frequencyBinCount;
+  const dataArray = new Uint8Array(bufferLength);
+
+  function draw() {
+    if (appState !== "recording") return;
+
+    analyserNode.getByteTimeDomainData(dataArray);
+
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, w, h);
+
+    // Draw waveform
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "#e74c3c";
+    ctx.beginPath();
+
+    const sliceWidth = w / bufferLength;
+    let x = 0;
+    for (let i = 0; i < bufferLength; i++) {
+      const v = dataArray[i] / 128.0;
+      const y = (v * h) / 2;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+      x += sliceWidth;
+    }
+
+    ctx.lineTo(w, h / 2);
+    ctx.stroke();
+
+    // Draw center line
+    ctx.strokeStyle = "rgba(231, 76, 60, 0.2)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, h / 2);
+    ctx.lineTo(w, h / 2);
+    ctx.stroke();
+
+    animFrameId = requestAnimationFrame(draw);
+  }
+
+  draw();
+}
+
+// ============================================================
+// Waveform: Static (during paused state)
+// ============================================================
+
+function drawStaticWaveform() {
+  if (!pcmBuffer || pcmBuffer.length === 0) {
+    clearCanvas();
     return;
   }
 
-  setState("uploading");
+  const canvas = $canvas;
+  const ctx = canvas.getContext("2d");
+  const w = canvas.getBoundingClientRect().width;
+  const h = canvas.getBoundingClientRect().height;
 
-  const ext = mediaRecorder._fmt ? mediaRecorder._fmt.ext : "m4a";
-  const mimeType = mediaRecorder._actualMimeType || "audio/mp4";
-  const filename = generateFilename(ext);
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, w, h);
 
-  try {
-    const base64 = await blobToBase64(blob);
-    await uploadToGAS(filename, base64, mimeType);
+  // Draw waveform from PCM data
+  const data = pcmBuffer;
+  const samplesPerPixel = Math.max(1, Math.floor(data.length / w));
 
-    // 履歴に追加
-    const totalSeconds = Math.floor(finalDurationMs / 1000);
-    addHistory(filename, blob.size, totalSeconds);
+  ctx.strokeStyle = "#3498db";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
 
-    setState("done");
-  } catch (err) {
-    setStatus("error", "アップロード失敗: " + err.message);
-    // ダウンロードリンクを提供
-    offerDownload(blob, filename);
-    setState("idle");
+  for (let i = 0; i < w; i++) {
+    let min = 1, max = -1;
+    const startSample = Math.floor(i * data.length / w);
+    const endSample = Math.min(startSample + samplesPerPixel, data.length);
+    for (let j = startSample; j < endSample; j++) {
+      const val = data[j];
+      if (val < min) min = val;
+      if (val > max) max = val;
+    }
+    const yMin = ((1 + min) / 2) * h;
+    const yMax = ((1 + max) / 2) * h;
+    ctx.moveTo(i, yMin);
+    ctx.lineTo(i, yMax);
+  }
+
+  ctx.stroke();
+
+  // Center line
+  ctx.strokeStyle = "rgba(52, 152, 219, 0.15)";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(0, h / 2);
+  ctx.lineTo(w, h / 2);
+  ctx.stroke();
+
+  // Draw seek position line (red vertical line)
+  const totalDuration = data.length / SAMPLE_RATE;
+  if (totalDuration > 0) {
+    const xPos = (seekPositionSec / totalDuration) * w;
+    ctx.strokeStyle = "#e74c3c";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(xPos, 0);
+    ctx.lineTo(xPos, h);
+    ctx.stroke();
+
+    // Small circle at the position
+    ctx.fillStyle = "#e74c3c";
+    ctx.beginPath();
+    ctx.arc(xPos, h / 2, 5, 0, Math.PI * 2);
+    ctx.fill();
   }
 }
 
-function generateFilename(ext) {
+function clearCanvas() {
+  const ctx = $canvas.getContext("2d");
+  const w = $canvas.getBoundingClientRect().width;
+  const h = $canvas.getBoundingClientRect().height;
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, w, h);
+
+  // Draw center line placeholder
+  ctx.strokeStyle = "rgba(0,0,0,0.06)";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(0, h / 2);
+  ctx.lineTo(w, h / 2);
+  ctx.stroke();
+}
+
+// ============================================================
+// Waveform: Seek via touch/pointer
+// ============================================================
+
+function onWaveformPointerDown(e) {
+  if (appState !== "paused") return;
+  isDraggingWaveform = true;
+  $canvas.setPointerCapture(e.pointerId);
+  updateSeekFromPointer(e);
+}
+
+function onWaveformPointerMove(e) {
+  if (!isDraggingWaveform || appState !== "paused") return;
+  updateSeekFromPointer(e);
+}
+
+function onWaveformPointerUp(e) {
+  if (!isDraggingWaveform) return;
+  isDraggingWaveform = false;
+  // If playing, seek the playback
+  if (isPlaying) {
+    stopPlayback();
+    startPlaybackFromPosition(seekPositionSec);
+  }
+}
+
+function updateSeekFromPointer(e) {
+  if (!pcmBuffer || pcmBuffer.length === 0) return;
+  const rect = $canvas.getBoundingClientRect();
+  const x = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
+  const ratio = x / rect.width;
+  const totalDuration = pcmBuffer.length / SAMPLE_RATE;
+  seekPositionSec = ratio * totalDuration;
+  drawStaticWaveform();
+  renderTimeDisplay();
+}
+
+// ============================================================
+// Playback (during paused state)
+// ============================================================
+
+function togglePlayback() {
+  if (isPlaying) {
+    stopPlayback();
+    renderControls();
+  } else {
+    startPlaybackFromPosition(seekPositionSec);
+    renderControls();
+  }
+}
+
+function startPlaybackFromPosition(offsetSec) {
+  if (!pcmBuffer || pcmBuffer.length === 0) return;
+
+  const ctx = getAudioContext();
+  const audioBuf = ctx.createBuffer(1, pcmBuffer.length, SAMPLE_RATE);
+  audioBuf.getChannelData(0).set(pcmBuffer);
+
+  playbackSource = ctx.createBufferSource();
+  playbackSource.buffer = audioBuf;
+  playbackSource.connect(ctx.destination);
+
+  playbackOffset = offsetSec;
+  playbackStartTime = ctx.currentTime;
+
+  playbackSource.onended = () => {
+    if (isPlaying) {
+      isPlaying = false;
+      seekPositionSec = pcmBuffer.length / SAMPLE_RATE;
+      if (animFrameId) {
+        cancelAnimationFrame(animFrameId);
+        animFrameId = null;
+      }
+      drawStaticWaveform();
+      renderTimeDisplay();
+      renderControls();
+    }
+  };
+
+  playbackSource.start(0, offsetSec);
+  isPlaying = true;
+
+  // Animate the seek line
+  function animatePlayback() {
+    if (!isPlaying) return;
+    const elapsed = ctx.currentTime - playbackStartTime;
+    seekPositionSec = playbackOffset + elapsed;
+    const totalDuration = pcmBuffer.length / SAMPLE_RATE;
+    if (seekPositionSec >= totalDuration) {
+      seekPositionSec = totalDuration;
+    }
+    drawStaticWaveform();
+    renderTimeDisplay();
+    animFrameId = requestAnimationFrame(animatePlayback);
+  }
+  animatePlayback();
+}
+
+function stopPlayback() {
+  if (playbackSource) {
+    try { playbackSource.stop(); } catch(e) {}
+    playbackSource = null;
+  }
+  isPlaying = false;
+  if (animFrameId) {
+    cancelAnimationFrame(animFrameId);
+    animFrameId = null;
+  }
+}
+
+// ============================================================
+// WAV Encoder
+// ============================================================
+
+function encodeWAV(samples, sampleRate) {
+  const buffer = new ArrayBuffer(44 + samples.length * 2);
+  const view = new DataView(buffer);
+
+  function writeStr(offset, str) {
+    for (let i = 0; i < str.length; i++) {
+      view.setUint8(offset + i, str.charCodeAt(i));
+    }
+  }
+
+  // RIFF header
+  writeStr(0, "RIFF");
+  view.setUint32(4, 36 + samples.length * 2, true);
+  writeStr(8, "WAVE");
+
+  // fmt chunk
+  writeStr(12, "fmt ");
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true); // PCM
+  view.setUint16(22, 1, true); // mono
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, sampleRate * 2, true); // byte rate
+  view.setUint16(32, 2, true); // block align
+  view.setUint16(34, 16, true); // bits per sample
+
+  // data chunk
+  writeStr(36, "data");
+  view.setUint32(40, samples.length * 2, true);
+
+  // PCM samples: float32 -> int16
+  for (let i = 0; i < samples.length; i++) {
+    const s = Math.max(-1, Math.min(1, samples[i]));
+    view.setInt16(44 + i * 2, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+  }
+
+  return new Blob([buffer], { type: "audio/wav" });
+}
+
+// ============================================================
+// Upload to GAS
+// ============================================================
+
+function getGasUrl() {
+  return localStorage.getItem("gas_webapp_url") || DEFAULT_GAS_URL;
+}
+
+function generateFilename() {
   const now = new Date();
   const y = now.getFullYear();
   const mo = String(now.getMonth() + 1).padStart(2, "0");
   const d = String(now.getDate()).padStart(2, "0");
   const h = String(now.getHours()).padStart(2, "0");
   const mi = String(now.getMinutes()).padStart(2, "0");
-  return `${y}-${mo}-${d}_${h}${mi}_振り返り.${ext}`;
+  return `${y}-${mo}-${d}_${h}${mi}_振り返り.wav`;
 }
 
 function blobToBase64(blob) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onloadend = () => {
-      // data:audio/mp4;base64,XXXX → XXXXの部分だけ取得
       const base64 = reader.result.split(",")[1];
       resolve(base64);
     };
@@ -1054,10 +1604,6 @@ function blobToBase64(blob) {
     reader.readAsDataURL(blob);
   });
 }
-
-// ============================================================
-// GASへのアップロード
-// ============================================================
 
 async function uploadToGAS(filename, base64data, mimeType) {
   const gasUrl = getGasUrl();
@@ -1068,15 +1614,11 @@ async function uploadToGAS(filename, base64data, mimeType) {
 
   showProgress(0);
 
-  // base64のサイズ確認
   const dataLength = base64data.length;
 
   if (dataLength <= CHUNK_SIZE) {
-    // 一括送信
     showProgress(30);
 
-    // GAS WebアプリはCORSプリフライトに対応しないため、
-    // Content-Typeをtext/plainにしてsimple requestとして送信
     const response = await fetch(gasUrl, {
       method: "POST",
       headers: { "Content-Type": "text/plain;charset=utf-8" },
@@ -1089,14 +1631,10 @@ async function uploadToGAS(filename, base64data, mimeType) {
 
     showProgress(90);
 
-    // GASのWebアプリはリダイレクトを返すことがあるため
-    // redirected後のレスポンスを取得
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
-    }
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-    let result;
     const text = await response.text();
+    let result;
     try {
       result = JSON.parse(text);
     } catch (e) {
@@ -1105,14 +1643,10 @@ async function uploadToGAS(filename, base64data, mimeType) {
 
     showProgress(100);
 
-    if (!result.success) {
-      throw new Error(result.error || "不明なエラー");
-    }
-
+    if (!result.success) throw new Error(result.error || "不明なエラー");
     return result;
-
   } else {
-    // チャンク送信
+    // Chunked upload
     const sessionId = Date.now().toString(36) + Math.random().toString(36).substring(2);
     const totalChunks = Math.ceil(dataLength / CHUNK_SIZE);
 
@@ -1134,15 +1668,11 @@ async function uploadToGAS(filename, base64data, mimeType) {
         }),
       });
 
-      if (!response.ok) {
-        throw new Error(`チャンク${i + 1}送信失敗: HTTP ${response.status}`);
-      }
+      if (!response.ok) throw new Error(`チャンク${i + 1}送信失敗: HTTP ${response.status}`);
 
       const chunkText = await response.text();
       const result = JSON.parse(chunkText);
-      if (!result.success) {
-        throw new Error(result.error || `チャンク${i + 1}でエラー`);
-      }
+      if (!result.success) throw new Error(result.error || `チャンク${i + 1}でエラー`);
     }
 
     showProgress(100);
@@ -1151,15 +1681,13 @@ async function uploadToGAS(filename, base64data, mimeType) {
 }
 
 function showProgress(percent) {
-  const el = document.getElementById("uploadProgress");
-  const bar = document.getElementById("uploadBar");
-  el.classList.remove("hidden");
-  bar.style.width = percent + "%";
+  $uploadProgress.classList.remove("hidden");
+  $uploadBar.style.width = percent + "%";
 }
 
 function hideProgress() {
-  document.getElementById("uploadProgress").classList.add("hidden");
-  document.getElementById("uploadBar").style.width = "0%";
+  $uploadProgress.classList.add("hidden");
+  $uploadBar.style.width = "0%";
 }
 
 function offerDownload(blob, filename) {
@@ -1174,154 +1702,39 @@ function offerDownload(blob, filename) {
 }
 
 // ============================================================
-// タイマー
+// History (LocalStorage)
 // ============================================================
-
-function startTimer() {
-  updateTimerDisplay();
-  timerInterval = setInterval(updateTimerDisplay, 200);
-}
-
-function stopTimer() {
-  clearInterval(timerInterval);
-  timerInterval = null;
-}
-
-function updateTimerDisplay() {
-  const elapsed = pausedElapsed + (Date.now() - startTime);
-  const totalSec = Math.floor(elapsed / 1000);
-  const min = String(Math.floor(totalSec / 60)).padStart(2, "0");
-  const sec = String(totalSec % 60).padStart(2, "0");
-  document.getElementById("timer").textContent = `${min}:${sec}`;
-}
-
-// ============================================================
-// UI状態管理
-// ============================================================
-
-function setState(newState) {
-  state = newState;
-  const btnRecord = document.getElementById("btnRecord");
-  const btnPause = document.getElementById("btnPause");
-  const btnStop = document.getElementById("btnStop");
-  const timer = document.getElementById("timer");
-  const waveform = document.getElementById("waveform");
-  const pauseIcon = document.getElementById("pauseIcon");
-
-  // リセット
-  btnRecord.classList.remove("is-recording", "pulse");
-  btnPause.classList.remove("is-paused", "blink", "hidden");
-  btnStop.classList.remove("hidden");
-  timer.classList.remove("recording", "paused");
-  waveform.classList.remove("active", "paused-anim");
-  btnRecord.disabled = false;
-  btnPause.disabled = false;
-  btnStop.disabled = false;
-  if (newState !== "paused") hidePauseActions();
-
-  switch (newState) {
-    case "idle":
-      btnPause.classList.add("hidden");
-      btnStop.classList.add("hidden");
-      timer.textContent = "00:00";
-      hideProgress();
-      setStatus("idle", "待機中");
-      break;
-
-    case "recording":
-      btnRecord.classList.add("is-recording", "pulse");
-      btnRecord.disabled = true;
-      timer.classList.add("recording");
-      waveform.classList.add("active");
-      // 一時停止ボタン: 一時停止アイコン表示
-      btnPause.classList.remove("is-paused", "blink");
-      pauseIcon.innerHTML = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
-      setStatus("recording", "録音中...");
-      break;
-
-    case "paused":
-      btnRecord.classList.add("is-recording");
-      btnRecord.disabled = true;
-      timer.classList.add("paused");
-      waveform.classList.add("paused-anim");
-      btnPause.classList.add("hidden");
-      setStatus("paused", "一時停止中 — 録音を確認してください");
-      showPauseActions();
-      break;
-
-    case "uploading":
-      btnPause.classList.add("hidden");
-      btnStop.classList.add("hidden");
-      btnRecord.disabled = true;
-      btnRecord.classList.remove("pulse");
-      setStatus("uploading", '<span class="spinner"></span>アップロード中...');
-      break;
-
-    case "done":
-      btnPause.classList.add("hidden");
-      btnStop.classList.add("hidden");
-      btnRecord.disabled = false;
-      btnRecord.classList.remove("is-recording");
-      hideProgress();
-      setStatus("done", "\u2705 保存しました");
-      // 3秒後に待機に戻る
-      setTimeout(() => {
-        if (state === "done") setState("idle");
-      }, 3000);
-      break;
-  }
-}
-
-function setStatus(type, html) {
-  const el = document.getElementById("status");
-  el.className = "status " + type;
-  if (html) el.innerHTML = html;
-}
-
-// ============================================================
-// 録音履歴（LocalStorage）
-// ============================================================
-
-const HISTORY_KEY = "voice_recorder_history";
-const MAX_HISTORY = 5;
 
 function loadHistory() {
-  const list = getHistoryList();
-  renderHistory(list);
+  renderHistory(getHistoryList());
 }
 
 function getHistoryList() {
   try {
     return JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
-  } catch {
-    return [];
-  }
+  } catch { return []; }
 }
 
 function addHistory(filename, sizeBytes, durationSec) {
   const list = getHistoryList();
   list.unshift({
-    filename: filename,
+    filename,
     size: sizeBytes,
     duration: durationSec,
     timestamp: new Date().toISOString(),
   });
-  // 最大5件に制限
   while (list.length > MAX_HISTORY) list.pop();
   localStorage.setItem(HISTORY_KEY, JSON.stringify(list));
   renderHistory(list);
 }
 
 function renderHistory(list) {
-  const container = document.getElementById("historyList");
-  const empty = document.getElementById("emptyHistory");
-
   if (list.length === 0) {
-    container.innerHTML = '<li class="empty-history" id="emptyHistory">まだ録音はありません</li>';
+    $historyList.innerHTML = '<li class="empty-history">まだ録音はありません</li>';
     return;
   }
 
-  container.innerHTML = list.map(item => {
+  $historyList.innerHTML = list.map(item => {
     const sizeMB = (item.size / (1024 * 1024)).toFixed(1);
     const min = Math.floor(item.duration / 60);
     const sec = item.duration % 60;
@@ -1331,7 +1744,7 @@ function renderHistory(list) {
     });
     return `
       <li class="history-item">
-        <div class="icon-col">\u2705</div>
+        <div class="icon-col">&#9989;</div>
         <div class="info">
           <div class="filename">${escapeHtml(item.filename)}</div>
           <div class="meta">${dateStr} / ${durStr} / ${sizeMB}MB</div>
@@ -1340,49 +1753,63 @@ function renderHistory(list) {
   }).join("");
 }
 
+// ============================================================
+// Settings
+// ============================================================
+
+function openSettings() {
+  document.getElementById("gasUrlInput").value = getGasUrl();
+  $settingsOverlay.classList.remove("hidden");
+}
+
+function closeSettings() {
+  $settingsOverlay.classList.add("hidden");
+}
+
+function saveSettings() {
+  const url = document.getElementById("gasUrlInput").value.trim();
+  if (url) localStorage.setItem("gas_webapp_url", url);
+  closeSettings();
+  setStatusBadge("idle", "設定を保存しました");
+  setTimeout(() => {
+    if (appState === "idle") setStatusBadge("idle", "待機中");
+  }, 1500);
+}
+
+// ============================================================
+// Utilities
+// ============================================================
+
+function fmtTime(sec) {
+  if (!isFinite(sec) || sec < 0) sec = 0;
+  const m = Math.floor(sec / 60);
+  const s = Math.floor(sec % 60);
+  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+}
+
 function escapeHtml(str) {
   const d = document.createElement("div");
   d.textContent = str;
   return d.innerHTML;
 }
 
-// ============================================================
-// 設定画面
-// ============================================================
-
-function openSettings() {
-  document.getElementById("gasUrlInput").value = getGasUrl();
-  document.getElementById("settingsOverlay").classList.remove("hidden");
-}
-
-function closeSettings() {
-  document.getElementById("settingsOverlay").classList.add("hidden");
-}
-
-function closeSettingsOnBackdrop(e) {
-  if (e.target === document.getElementById("settingsOverlay")) {
-    closeSettings();
+function el(tag, attrs) {
+  const e = document.createElement(tag);
+  if (attrs) {
+    for (const [k, v] of Object.entries(attrs)) {
+      if (k === "class") e.className = v;
+      else e.setAttribute(k, v);
+    }
   }
-}
-
-function saveSettings() {
-  const url = document.getElementById("gasUrlInput").value.trim();
-  if (url) {
-    localStorage.setItem("gas_webapp_url", url);
-  }
-  closeSettings();
-  setStatus("idle", "設定を保存しました");
-  setTimeout(() => setStatus("idle", "待機中"), 1500);
+  return e;
 }
 
 // ============================================================
-// Service Worker 登録
+// Service Worker
 // ============================================================
 
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("sw.js").catch(() => {
-    // Service Workerが読み込めなくても動作に影響なし
-  });
+  navigator.serviceWorker.register("sw.js").catch(() => {});
 }
 </script>
 </body>

@@ -1,7 +1,7 @@
-// Service Worker - 振り返り録音 PWA
+// Service Worker - 振り返り録音 PWA v2
 // オフラインキャッシュ最小構成
 
-const CACHE_NAME = "voice-recorder-v1";
+const CACHE_NAME = "voice-recorder-v2";
 const ASSETS = [
   "./",
   "./index.html",
